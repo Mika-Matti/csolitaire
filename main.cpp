@@ -26,9 +26,10 @@ int main() {
 		window.clear(bgColor); //Clear the window
 		//Draw the objects on the window		
 		for(int i=0; i < cardSlots.size(); i++) {		
-			window.draw(cardSlots[i]); 
+			window.draw(cardSlots[i]);	
 		}
-			//End drawing
+		//TODO get the card stack vector and draw out the stacks on top of slot coords.
+		//End drawing
 		window.display(); //Update the window
 	}
 
