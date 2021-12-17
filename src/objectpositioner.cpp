@@ -3,9 +3,12 @@
 #include <fstream>
 #include <string>
 #include "objectpositioner.hpp"
+#include "card.hpp"
+
 //Constructor
-ObjectPositioner::ObjectPositioner(sf::Color bg) {
+ObjectPositioner::ObjectPositioner(sf::Color bg, sf::Vector2f dims) {
 	bgColor = bg;
+	cardDimensions = dims;
 }
 //Destructor
 ObjectPositioner::~ObjectPositioner() {
@@ -17,13 +20,17 @@ void ObjectPositioner::positionCardSlots(std::string f) {
 	std::ifstream slotPositions(f); //Holds card slot positions (x,y)
 	int x, y; //Store current positions of the card
 	while (slotPositions >> x >> y) { //Read positions for card slots from file
-		sf::RectangleShape cardSlot(sf::Vector2f(100.0f, 150.0f)); //Card slot with shape
-		cardSlot.setOutlineColor(sf::Color::Red); //Cardslot outline color
+		sf::RectangleShape cardSlot(cardDimensions); //Card slot with shape
+		cardSlot.setOutlineColor(sf::Color::Red); //Cardslot outline color TODO change to parameter
 		cardSlot.setFillColor(sf::Color::Transparent); //Cardslot has no filled color
-		cardSlot.setOutlineThickness(5); //Outline thickness
+		cardSlot.setOutlineThickness(5); //Outline thickness 
 		cardSlot.setPosition(x,y); //Set position
 		cardSlots.push_back(cardSlot); //Add to the vector that will be drawn in mainloop
 	}
+}
+
+void ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol) {
+	std::cout << suits << xy.x << xy.y << std::endl;
 }
 
 std::vector<sf::RectangleShape> ObjectPositioner::getCardSlotPositions() {

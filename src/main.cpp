@@ -1,18 +1,27 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <fstream>
 #include <string>
 #include "objectpositioner.hpp"
+#include "card.hpp"
 
 int main() {
-	//Initiate objects
-	sf::RenderWindow window(sf::VideoMode(960, 540), "CSolitaire"); //Game window
-	sf::Color bgColor = sf::Color::Black;
-	ObjectPositioner objectPositioner(bgColor);
+	//Window settings TODO move these to their own settings file to read from
+	int wWidth = 960, wHeight = 540; //Window dimensions
+	sf::Color bgColor = sf::Color::Black; //Window background color
+	sf::Vector2f cardDimensions = sf::Vector2f(100.0f, 150.0f);
+	//Card settings
+	int suits = 4; //Full amount of suits
+	sf::Color cardColor = sf::Color::White; //Card background color
 
+	//Initiate window and object positioner
+	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); //Game window
+	ObjectPositioner objectPositioner(bgColor, cardDimensions); //Controls objects on window
 	//Read positions for card slots from file
 	objectPositioner.positionCardSlots("slotpositions.cfg"); //Set card slot positions (x,y)
 	std::vector<sf::RectangleShape> cardSlots = objectPositioner.getCardSlotPositions();
+	//Create standard 52-card set and store it in a vector in objectpositioner
+	sf::Vector2f pos = cardSlots[0].getPosition(); //Get default card position
+	objectPositioner.createCards(suits, pos, cardColor);
 
 	//Start mainloop
 	while (window.isOpen()) {
