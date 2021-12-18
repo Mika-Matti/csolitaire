@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include "objectpositioner.hpp"
-#include "card.hpp"
 
 int main() {
 	//Window settings TODO move these to their own settings file to read from
@@ -22,7 +21,7 @@ int main() {
 	//Create standard 52-card set and store it in a vector in objectpositioner
 	sf::Vector2f pos = cardSlots[0].getPosition(); //Get default card position
 	objectPositioner.createCards(suits, pos, cardColor);
-
+	std::vector<sf::RectangleShape> currentCards = objectPositioner.makeCardDrawables();
 	//Start mainloop
 	while (window.isOpen()) {
 		//Closing mechanism to exit mainloop	
@@ -35,9 +34,12 @@ int main() {
 		window.clear(bgColor); //Clear the window
 		//Draw the objects on the window		
 		for(int i=0; i < cardSlots.size(); i++) {		
-			window.draw(cardSlots[i]);	
+			window.draw(cardSlots[i]);	//Draw the slots where cards can be placed
 		}
-		//TODO get the card stack vector and draw out the stacks on top of slot coords.
+		//Draw card rectangles
+		for(int i=0; i < currentCards.size(); i++) {
+			window.draw(currentCards[i]); //Draw the cards with their current coords
+		}
 		//End drawing
 		window.display(); //Update the window
 	}
