@@ -22,3 +22,7 @@ Card::~Card() {
 sf::RectangleShape Card::getDrawable() {
 	return shape;
 }
+
+void Card::updatePosition(sf::Vector2f pos) {
+	shape.setPosition(pos);
+}

@@ -11,4 +11,5 @@ class Card {
 	
 		//Method declarations
 		sf::RectangleShape getDrawable();
+		void updatePosition(sf::Vector2f pos);
 };
