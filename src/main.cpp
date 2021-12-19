@@ -8,13 +8,18 @@ int main() {
 	//Window settings TODO move these to their own settings file to read from
 	int wWidth = 960, wHeight = 540; //Window dimensions
 	sf::Color bgColor = sf::Color::Black; //Window background color
+
+	//Card Settings
 	sf::Vector2f cardDimensions = sf::Vector2f(100.0f, 150.0f);
-	//Card settings
-	int suits = 4; //Full amount of suits
+	sf::Vector2f pos; //initial card position
 	sf::Color cardColor = sf::Color::White; //Card background color
+	int suits = 4;
+	
 	//Game elements
 	std::vector<sf::RectangleShape> cardSlots;
 	std::vector<Card> cards;
+	int gameState = 0;
+	int index = 0; //Used for animating card movement in game;
 
 	//Initiate window and object positioner
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); //Game window
@@ -25,7 +30,7 @@ int main() {
 	cardSlots = objectPositioner.getCardSlotPositions(); //Get and store the drawable slots
 
 	//Create standard 52-card set in objectpositioner
-	sf::Vector2f pos = cardSlots[0].getPosition(); //Get default card position
+	pos = cardSlots[0].getPosition();
 	cards = objectPositioner.createCards(suits, pos, cardColor); //Objectpositioner creates card deck
 
 	//Start mainloop
@@ -36,6 +41,8 @@ int main() {
 			if(event.type == sf::Event::Closed)
 				window.close();
 		}
+		//Game logic and states
+		
 		//Redraw window
 		window.clear(bgColor); //Clear the window
 		//Draw the objects on the window		
