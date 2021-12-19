@@ -58,13 +58,13 @@ void ObjectPositioner::positionCardSlots(std::string f) {
 //	return drawableCards;
 //}
 
-std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol) {
+std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t) {
 	std::vector<Card> cards;			//Initiate vector
 	int size = suits*13;				//Calculate size for vector
 	cards.reserve(size);				//Allocate size in vector
 	for(int i=1; i<=suits; i++)			//For every suit
 		for(int a=1; a<=13; a++)		//For every card in a suit
-			cards.push_back(Card(cardCol, a, i, xy, cardDimensions));//Add the card to the vector
+			cards.push_back(Card(cardCol, i, a, xy, cardDimensions, t));//Add the card to the vector
 	return cards;
 }
 

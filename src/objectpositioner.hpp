@@ -16,7 +16,7 @@ class ObjectPositioner {
 		void positionCardSlots(std::string file); //Set card slot positions from file
 		std::vector<sf::RectangleShape> getCardSlotPositions(); //Get the card slots for rendering
 		std::vector<sf::RectangleShape> makeCardDrawables(); //OBSOLETE
-		std::vector<Card> createCards(int suits, sf::Vector2f xy, sf::Color cardCol); //cards vector
+		std::vector<Card> createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t);
 		//TODO shuffle card vector
 };
 #endif

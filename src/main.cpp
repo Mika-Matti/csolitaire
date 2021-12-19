@@ -8,11 +8,14 @@ int main() {
 	//Window settings TODO move these to their own settings file to read from
 	int wWidth = 960, wHeight = 540; //Window dimensions
 	sf::Color bgColor = sf::Color::Black; //Window background color
+	sf::Font font; //Font used in cards
+	font.loadFromFile("Px437_IBM_VGA_8x16.ttf");
 
 	//Card Settings
 	sf::Vector2f cardDimensions = sf::Vector2f(100.0f, 150.0f);
-	sf::Vector2f pos(-100.0f, -150.0f); //initial card position
+	sf::Vector2f pos(-100.0f, -100.0f); //initial card position
 	sf::Color cardColor = sf::Color::White; //Card background color
+	sf::Text text("VALUE", font); //Initial text for cards
 	int suits = 4;
 	
 	//Game elements
@@ -22,11 +25,11 @@ int main() {
 	int index = 0; //Used for animating card movement in game;
 	sf::Vector2f cardPos(20.0f, 20.0f); //Used to track one card position
 	sf::Vector2f destPos(20.0f, 20.0f);	//Used to track destination of that one card
-	float offSet = 10.0f; //How much the card moves in animation;
+	float offSet = 20.0f; //How much the card moves in animation;
 
 	//Initiate window and object positioner
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); //Game window
-	window.setFramerateLimit(200);
+	window.setFramerateLimit(144);
 	ObjectPositioner objectPositioner(bgColor, cardDimensions); //Controls objects on window
 
 	//Read positions for card slots from file
@@ -34,8 +37,8 @@ int main() {
 	cardSlots = objectPositioner.getCardSlotPositions(); //Get and store the drawable slots
 
 	//Create standard 52-card set in objectpositioner
-	//pos = cardSlots[0].getPosition();
-	cards = objectPositioner.createCards(suits, pos, cardColor); //Objectpositioner creates card deck
+	cards = objectPositioner.createCards(suits, pos, cardColor, text); //Create card deck
+
 
 	//Start mainloop
 	while (window.isOpen()) {
@@ -66,20 +69,25 @@ int main() {
 				gameState++;
 				index = 0;
 			}	
+		} else { //If gamestate > 0
+			//std::cout << cards[0].getText().getPosition().x << std::endl;
 		}
+
 		//Redraw window
 		window.clear(bgColor); //Clear the window
 		//Draw the objects on the window		
 		for(int i=0; i < cardSlots.size(); i++) {		
 			window.draw(cardSlots[i]);	//Draw the slots where cards can be placed
 		}
-		//Draw card rectangles
+		//Draw cards
 		for(int i=0; i < cards.size(); i++) {
-			window.draw(cards[i].getDrawable()); //Draw the cards with their current coords
+			window.draw(cards[i].getDrawable()); //Draw the card rectangle
+			window.draw(cards[i].getText());	//Draw the number of card
 		}
+
 		//End drawing
 		window.display(); //Update the window
 	}
-
+	//Mainloop ends
 	return 0;
 }
