@@ -29,48 +29,45 @@ void ObjectPositioner::positionCardSlots(std::string f) {
 	}
 }
 
-std::vector<sf::RectangleShape> ObjectPositioner::makeCardDrawables() {
-	std::vector<sf::RectangleShape> drawableCards;
-	float xOffset = 0.0f, yOffset = 0.0f;
+//std::vector<sf::RectangleShape> ObjectPositioner::makeCardDrawables() {
+//	std::vector<sf::RectangleShape> drawableCards;
+//	float xOffset = 0.0f, yOffset = 0.0f;
 
-	for(int i=0; i<cards.size(); i++) {
-		std::cout << cards[i].getCardPos().x << cards[i].getCardPos().y << std::endl;
-		sf::Vector2f cardPos = cards[i].getCardPos();
-
-		sf::RectangleShape drawable(cardDimensions); //Card shape
-		drawable.setOutlineColor(sf::Color::Black); //Cardslot outline color TODO change to parameter
-		drawable.setFillColor(sf::Color::White); //TODO get this from card class
-		drawable.setOutlineThickness(1); //Outline thickness
-		if(i > 0 && cardPos.x != cards[i-1].getCardPos().x && 
-						cardPos.y != cards[i-1].getCardPos().y) { //If stack changes
-			xOffset = 0.0f;	//Then reset offsets of the stack being filled
-			yOffset = 0.0f;
-		}
+//	for(int i=0; i<cards.size(); i++) {
+//		sf::Vector2f cardPos = cards[i].getCardPos();
+//
+//		sf::RectangleShape drawable(cardDimensions); //Card shape
+//		drawable.setOutlineColor(sf::Color::Black); //Cardslot outline color TODO change to parameter
+//		drawable.setFillColor(sf::Color::White); //TODO get this from card class
+//		drawable.setOutlineThickness(1); //Outline thickness
+//		if(i > 0 && cardPos.x != cards[i-1].getCardPos().x && 
+//						cardPos.y != cards[i-1].getCardPos().y) { //If stack changes
+//			xOffset = 0.0f;	//Then reset offsets of the stack being filled
+//			yOffset = 0.0f;
+//		}
 		//For row to stack this will make the cosmetic effect of stacking cards
-		if(cardPos.y == 20) { //If card is in slot that is upper level
-			xOffset = xOffset+0.1f;
-			yOffset = yOffset-0.1f;
-		} else {
+//		if(cardPos.y == 20) { //If card is in slot that is upper level
+//			xOffset = xOffset+0.1f;
+//			yOffset = yOffset-0.1f;
+//		} else {
 			//Make the cosmetic effect of cards stacking 
-		}
-		drawable.setPosition(cardPos.x + xOffset, cardPos.y + yOffset); //Set position
-		drawableCards.push_back(drawable); //Add to the vector that will be drawn in mainloop
-	}
-	return drawableCards;
-}
+//		}
+//		drawable.setPosition(cardPos.x + xOffset, cardPos.y + yOffset); //Set position
+//		drawableCards.push_back(drawable); //Add to the vector that will be drawn in mainloop
+//	}
+//	return drawableCards;
+//}
 
-void ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol) {
+std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol) {
+	std::vector<Card> cards;			//Initiate vector
 	int size = suits*13;				//Calculate size for vector
 	cards.reserve(size);				//Allocate size in vector
-	for(int i=0; i<suits; i++)			//For every suit
-		for(int a=1; a<=13; a++)			//For every card in a suit
-			cards.push_back(Card(cardCol, a, i, xy));	//Add the card to the vector
+	for(int i=1; i<=suits; i++)			//For every suit
+		for(int a=1; a<=13; a++)		//For every card in a suit
+			cards.push_back(Card(cardCol, a, i, xy, cardDimensions));//Add the card to the vector
+	return cards;
 }
 
 std::vector<sf::RectangleShape> ObjectPositioner::getCardSlotPositions() {
 	return cardSlots;
-}
-
-std::vector<Card> ObjectPositioner::getCards() {
-	return cards;
 }

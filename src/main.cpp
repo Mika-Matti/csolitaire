@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include "objectpositioner.hpp"
+#include "card.hpp"
 
 int main() {
 	//Window settings TODO move these to their own settings file to read from
@@ -11,17 +12,22 @@ int main() {
 	//Card settings
 	int suits = 4; //Full amount of suits
 	sf::Color cardColor = sf::Color::White; //Card background color
+	//Game elements
+	std::vector<sf::RectangleShape> cardSlots;
+	std::vector<Card> cards;
 
 	//Initiate window and object positioner
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); //Game window
 	ObjectPositioner objectPositioner(bgColor, cardDimensions); //Controls objects on window
+
 	//Read positions for card slots from file
 	objectPositioner.positionCardSlots("slotpositions.cfg"); //Set card slot positions (x,y)
-	std::vector<sf::RectangleShape> cardSlots = objectPositioner.getCardSlotPositions();
-	//Create standard 52-card set and store it in a vector in objectpositioner
+	cardSlots = objectPositioner.getCardSlotPositions(); //Get and store the drawable slots
+
+	//Create standard 52-card set in objectpositioner
 	sf::Vector2f pos = cardSlots[0].getPosition(); //Get default card position
-	objectPositioner.createCards(suits, pos, cardColor);
-	std::vector<sf::RectangleShape> currentCards = objectPositioner.makeCardDrawables();
+	cards = objectPositioner.createCards(suits, pos, cardColor); //Objectpositioner creates card deck
+
 	//Start mainloop
 	while (window.isOpen()) {
 		//Closing mechanism to exit mainloop	
@@ -37,8 +43,8 @@ int main() {
 			window.draw(cardSlots[i]);	//Draw the slots where cards can be placed
 		}
 		//Draw card rectangles
-		for(int i=0; i < currentCards.size(); i++) {
-			window.draw(currentCards[i]); //Draw the cards with their current coords
+		for(int i=0; i < cards.size(); i++) {
+			window.draw(cards[i].getDrawable()); //Draw the cards with their current coords
 		}
 		//End drawing
 		window.display(); //Update the window
