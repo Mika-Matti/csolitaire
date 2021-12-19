@@ -9,7 +9,7 @@ int main() {
 	int wWidth = 960, wHeight = 540; //Window dimensions
 	sf::Color bgColor = sf::Color::Black; //Window background color
 	sf::Font font; //Font used in cards
-	font.loadFromFile("Px437_IBM_VGA_8x16.ttf");
+	font.loadFromFile("fonts/Px437_IBM_VGA_8x16.ttf");
 
 	//Card Settings
 	sf::Vector2f cardDimensions = sf::Vector2f(100.0f, 150.0f);
