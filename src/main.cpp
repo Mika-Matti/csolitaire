@@ -53,7 +53,6 @@ int main() {
 
 				if(cardPos.x < destPos.x || cardPos.y < destPos.y) {
 					if(cardPos.x < destPos.x) {
-						std::cout << cardPos.x << " " << destPos.x << std::endl;
 						cardPos.x = cardPos.x+offSet; //Move horizontally towards destination
 					}
 					if(cardPos.y < destPos.y) {
@@ -65,6 +64,7 @@ int main() {
 				}
 			} else {
 				gameState++;
+				index = 0;
 			}	
 		}
 		//Redraw window

@@ -1,3 +1,6 @@
+#ifndef OBJECTPOSITIONER_H
+#define OBJECTPOSITIONER_H
+
 class Card; //Forward declaration of Card class
 
 class ObjectPositioner {
@@ -16,3 +19,4 @@ class ObjectPositioner {
 		std::vector<Card> createCards(int suits, sf::Vector2f xy, sf::Color cardCol); //cards vector
 		//TODO shuffle card vector
 };
+#endif

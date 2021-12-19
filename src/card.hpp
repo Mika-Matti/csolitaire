@@ -1,7 +1,9 @@
+#ifndef CARD_H
+#define CARD_H
 class Card {
 	private:
 		sf::Color bgColor;
-		sf::Color outLine;				 //Will change color when active
+		sf::Color outLine;				//Will change color when active
 		int number; 					//From 1-13
 		int suit; 						//Where 1 2 3 4 are spades, clubs, diamonds, hearts
 		sf::RectangleShape shape;		//Card shape
@@ -13,3 +15,4 @@ class Card {
 		sf::RectangleShape getDrawable();
 		void updatePosition(sf::Vector2f pos);
 };
+#endif
