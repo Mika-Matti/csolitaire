@@ -56,8 +56,12 @@ sf::Sprite Card::getSymbol() {
 void Card::updatePosition(sf::Vector2f pos) {
 	shape.setPosition(pos); //Update card position
 	sf::Vector2f dims = shape.getSize(); //Take the size of the card
+
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(textRect.left + textRect.width/2.0f, textRect.top  + textRect.height/2.0f);
-	text.setPosition(pos.x+(dims.x/2.0f), pos.y+(dims.y/2.0f)); //Center the number to card
-	symbol.setPosition(pos); //Update symbol coordination
+	text.setPosition(pos.x+(dims.x/10.0f), pos.y+(dims.y/10.0f)); //Update number position
+
+	sf::FloatRect symbRect = symbol.getLocalBounds();
+	symbol.setOrigin(symbRect.width/2.0f,symbRect.height/2.0f);
+	symbol.setPosition(pos.x+(dims.x/2.0f), pos.y+(dims.y/2.0f)); //Update symbol coordination
 }
