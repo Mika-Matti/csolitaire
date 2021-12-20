@@ -5,6 +5,6 @@ compile:
 	g++ -I src/include -c src/objectpositioner.cpp
 	g++ -I src/include -c src/main.cpp
 link:
-	g++ card.o objectpositioner.o main.o -o game -L src/lib -l sfml-graphics -l sfml-window -l sfml-system
+	g++ card.o objectpositioner.o main.o -o game -lstdc++fs -L src/lib -l sfml-graphics -l sfml-window -l sfml-system
 clean:
 	rm -f $(wildcard *.o)

@@ -58,7 +58,7 @@ void ObjectPositioner::positionCardSlots(std::string f) {
 //	return drawableCards;
 //}
 
-std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t) {
+std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t, const std::vector<sf::Texture>& texs) {
 	std::vector<Card> cards;			//Initiate vector
 	int size = suits*13;				//Calculate size for vector
 	cards.reserve(size);				//Allocate size in vector

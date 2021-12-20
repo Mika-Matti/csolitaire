@@ -6,8 +6,9 @@ class Card {
 		sf::Color outLine;				//Will change color when active
 		int number; 					//From 1-13
 		int suit; 						//Where 1 2 3 4 are spades, diamonds, clubs, hearts
-		sf::RectangleShape shape;		//Card shape
-		sf::Text text;
+		sf::RectangleShape shape;		//Drawable card shape
+		sf::Text text;					//Drawable card number
+		sf::Sprite symbol;				//Drawable card suit symbol
 	public:
 		Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::Text t); 
 		~Card();	//Destructor

@@ -1,8 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
+#include <filesystem>
 #include "objectpositioner.hpp"
 #include "card.hpp"
+
+namespace fs = std::filesystem;
 
 int main() {
 	//Window settings TODO move these to their own settings file to read from
@@ -27,6 +30,17 @@ int main() {
 	sf::Vector2f destPos(20.0f, 20.0f);	//Used to track destination of that one card
 	float offSet = 20.0f; //How much the card moves in animation;
 
+	//Load graphic resources to a vector and pass it as a reference to functions that use it
+	//for (const auto & entry : fs::directory_iterator("textures/*.png"))
+	//	std::cout << entry.path() << std::endl;
+	std::vector<sf::Texture> textures;	//Vector for storing images
+	textures.push_back(sf::Texture());	//Spade symbol
+	textures[0].loadFromFile("textures/spade.png"); //Load spade imagei
+
+	sf::Sprite sprite;	//TEST SPRITE, DELETE THIS
+	sprite.setTexture(textures[0]);
+	sprite.setPosition(20.0f, 20.0f);
+
 	//Initiate window and object positioner
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); //Game window
 	window.setFramerateLimit(144);
@@ -37,8 +51,7 @@ int main() {
 	cardSlots = objectPositioner.getCardSlotPositions(); //Get and store the drawable slots
 
 	//Create standard 52-card set in objectpositioner
-	cards = objectPositioner.createCards(suits, pos, cardColor, text); //Create card deck
-
+	cards = objectPositioner.createCards(suits, pos, cardColor, text, textures); //Create card decks
 
 	//Start mainloop
 	while (window.isOpen()) {
@@ -84,6 +97,8 @@ int main() {
 			window.draw(cards[i].getDrawable()); //Draw the card rectangle
 			window.draw(cards[i].getText());	//Draw the number of card
 		}
+
+		window.draw(sprite); //DELETE THIS
 
 		//End drawing
 		window.display(); //Update the window
