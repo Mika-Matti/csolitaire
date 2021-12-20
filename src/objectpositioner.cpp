@@ -49,9 +49,10 @@ std::vector<sf::RectangleShape> ObjectPositioner::getCardSlotPositions() {
 
 float ObjectPositioner::adjustPositioningSpeed(const float& a, const float& b) {
 	float v = b-a;	//First get the distance between object and destination
-	float speed = 0.1f;	//Store the return value
-	int base = 10;
-	while(v >= 1.0) {	//This while loop keeps dividing v to find amount of digits	
+	float minSpeed = 0.5f;
+	float speed = minSpeed;	//Store the return value
+	float base = 5.0f;
+	while(v >= minSpeed*base) {//This while loop keeps dividing v to find amount of digits	
 		v = v / base;	
 		speed = speed*base;	//This ensures speed will never be greater than distance    
 	}
