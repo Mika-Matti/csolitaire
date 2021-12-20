@@ -31,12 +31,13 @@ int main() {
 	float offSet = 20.0f; //How much the card moves in animation;
 
 	//Load graphic resources to a vector and pass it as a reference to functions that use it
-	//for (const auto & entry : fs::directory_iterator("textures/*.png"))
-	//	std::cout << entry.path() << std::endl;
-	std::vector<sf::Texture> textures;	//Vector for storing images
-	textures.push_back(sf::Texture());	//Spade symbol
-	textures[0].loadFromFile("textures/spade.png"); //Load spade imagei
-
+	std::vector<sf::Texture> textures;	//Vector for storing image
+	for (const auto & entry : fs::directory_iterator("textures/")) {
+		std::string file = entry.path().string();
+		sf::Texture tex; //Create texture object
+		tex.loadFromFile(file); //Load image to texture
+		textures.push_back(tex);
+	}
 	sf::Sprite sprite;	//TEST SPRITE, DELETE THIS
 	sprite.setTexture(textures[0]);
 	sprite.setPosition(20.0f, 20.0f);
