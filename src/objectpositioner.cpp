@@ -29,35 +29,6 @@ void ObjectPositioner::positionCardSlots(std::string f) {
 	}
 }
 
-//std::vector<sf::RectangleShape> ObjectPositioner::makeCardDrawables() {
-//	std::vector<sf::RectangleShape> drawableCards;
-//	float xOffset = 0.0f, yOffset = 0.0f;
-
-//	for(int i=0; i<cards.size(); i++) {
-//		sf::Vector2f cardPos = cards[i].getCardPos();
-//
-//		sf::RectangleShape drawable(cardDimensions); //Card shape
-//		drawable.setOutlineColor(sf::Color::Black); //Cardslot outline color TODO change to parameter
-//		drawable.setFillColor(sf::Color::White); //TODO get this from card class
-//		drawable.setOutlineThickness(1); //Outline thickness
-//		if(i > 0 && cardPos.x != cards[i-1].getCardPos().x && 
-//						cardPos.y != cards[i-1].getCardPos().y) { //If stack changes
-//			xOffset = 0.0f;	//Then reset offsets of the stack being filled
-//			yOffset = 0.0f;
-//		}
-		//For row to stack this will make the cosmetic effect of stacking cards
-//		if(cardPos.y == 20) { //If card is in slot that is upper level
-//			xOffset = xOffset+0.1f;
-//			yOffset = yOffset-0.1f;
-//		} else {
-			//Make the cosmetic effect of cards stacking 
-//		}
-//		drawable.setPosition(cardPos.x + xOffset, cardPos.y + yOffset); //Set position
-//		drawableCards.push_back(drawable); //Add to the vector that will be drawn in mainloop
-//	}
-//	return drawableCards;
-//}
-
 std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t, const std::vector<sf::Texture>& texs) {
 	std::vector<Card> cards;			//Initiate vector
 	int size = suits*13;				//Calculate size for vector
@@ -65,12 +36,24 @@ std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::
 	sf::Sprite sprite;					//Sprite for card
 	for(int i=1; i<=suits; i++)	{		//For every suite
 		sprite.setTexture(texs[i-1]); 		//Set the proper image
-		for(int a=1; a<=13; a++)			//For every card in a suit
-			cards.push_back(Card(cardCol, a, i, xy, cardDimensions, t, sprite)); //add card to vector
+		for(int a=1; a<=13; a++) {			//For every card in a suit
+			cards.push_back(Card(cardCol, a, i, xy, cardDimensions, t, sprite)); //add to vector
+		}
 	}
 	return cards;
 }
 
 std::vector<sf::RectangleShape> ObjectPositioner::getCardSlotPositions() {
 	return cardSlots;
+}
+
+float ObjectPositioner::adjustPositioningSpeed(const float& a, const float& b) {
+	float v = b-a;	//First get the distance between object and destination
+	float speed = 0.1f;	//Store the return value
+	int base = 10;
+	while(v >= 1.0) {	//This while loop keeps dividing v to find amount of digits	
+		v = v / base;	
+		speed = speed*base;	//This ensures speed will never be greater than distance    
+	}
+	return speed;	//Return the optimal positioning speed
 }

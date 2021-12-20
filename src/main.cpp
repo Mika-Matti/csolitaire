@@ -28,7 +28,7 @@ int main() {
 	int index = 0; //Used for animating card movement in game;
 	sf::Vector2f cardPos(20.0f, 20.0f); //Used to track one card position
 	sf::Vector2f destPos(20.0f, 20.0f);	//Used to track destination of that one card
-	float offSet = 20.0f; //How much the card moves in animation;
+	float offSet = 1.0f; //How much the card moves in animation;
 
 	//Load graphic resources to a vector and pass it as a reference to functions that use it
 	std::vector<sf::Texture> textures;	//Vector for storing image
@@ -64,12 +64,16 @@ int main() {
 			if(index < cards.size()) {
 				cardPos = cards[index].getDrawable().getPosition();
 				destPos = cardSlots[0].getPosition();
+				destPos.x = destPos.x+index*0.1f; //This helps to visualize a stack
+				destPos.y = destPos.y-index*0.1f; //and to help game logic to see order of cards
 
 				if(cardPos.x < destPos.x || cardPos.y < destPos.y) {
 					if(cardPos.x < destPos.x) {
+						offSet = objectPositioner.adjustPositioningSpeed(cardPos.x, destPos.x);
 						cardPos.x = cardPos.x+offSet; //Move horizontally towards destination
 					}
 					if(cardPos.y < destPos.y) {
+						offSet = objectPositioner.adjustPositioningSpeed(cardPos.y, destPos.y);
 						cardPos.y = cardPos.y+offSet; //Move vertically towards destination
 					}
 					cards[index].updatePosition(cardPos); //Update coords of object

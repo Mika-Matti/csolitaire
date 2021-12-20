@@ -18,6 +18,7 @@ class ObjectPositioner {
 		std::vector<sf::RectangleShape> makeCardDrawables(); //OBSOLETE
 		std::vector<Card> createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t,  
 						const std::vector<sf::Texture>& texs);
+		float adjustPositioningSpeed(const float& a, const float& b);
 		//TODO shuffle card vector
 };
 #endif
