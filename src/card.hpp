@@ -10,13 +10,15 @@ class Card {
 		sf::Text text;					//Drawable card number
 		sf::Sprite symbol;				//Drawable card suit symbol
 	public:
-		Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::Text t); 
+		Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims,
+					    sf::Text t, sf::Sprite sprite); 
 		~Card();	//Destructor
 	
 		//Method declarations
 		int getNumber();
 		sf::RectangleShape getDrawable();
 		sf::Text getText();
+		sf::Sprite getSymbol();		
 		void updatePosition(sf::Vector2f pos);
 };
 #endif

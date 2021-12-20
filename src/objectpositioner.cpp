@@ -62,9 +62,12 @@ std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::
 	std::vector<Card> cards;			//Initiate vector
 	int size = suits*13;				//Calculate size for vector
 	cards.reserve(size);				//Allocate size in vector
-	for(int i=1; i<=suits; i++)			//For every suit
-		for(int a=1; a<=13; a++)		//For every card in a suit
-			cards.push_back(Card(cardCol, i, a, xy, cardDimensions, t));//Add the card to the vector
+	sf::Sprite sprite;					//Sprite for card
+	for(int i=1; i<=suits; i++)	{		//For every suite
+		sprite.setTexture(texs[i-1]); 		//Set the proper image
+		for(int a=1; a<=13; a++)			//For every card in a suit
+			cards.push_back(Card(cardCol, a, i, xy, cardDimensions, t, sprite)); //add card to vector
+	}
 	return cards;
 }
 

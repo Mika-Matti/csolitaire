@@ -38,9 +38,6 @@ int main() {
 		tex.loadFromFile(file); //Load image to texture
 		textures.push_back(tex);
 	}
-	sf::Sprite sprite;	//TEST SPRITE, DELETE THIS
-	sprite.setTexture(textures[0]);
-	sprite.setPosition(20.0f, 20.0f);
 
 	//Initiate window and object positioner
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); //Game window
@@ -97,9 +94,8 @@ int main() {
 		for(int i=0; i < cards.size(); i++) {
 			window.draw(cards[i].getDrawable()); //Draw the card rectangle
 			window.draw(cards[i].getText());	//Draw the number of card
+			window.draw(cards[i].getSymbol());	//Draw suit symbol of card
 		}
-
-		window.draw(sprite); //DELETE THIS
 
 		//End drawing
 		window.display(); //Update the window
