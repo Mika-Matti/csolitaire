@@ -11,7 +11,7 @@ Card::Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::T
 	number = n;
 	suit = s;
 	shape = sf::RectangleShape(dims);
-	shape.setPosition(xy);
+	// shape.setPosition(xy);
 	shape.setOutlineColor(sf::Color::Black); // Outline of card
 	shape.setFillColor(bg);	// Color of card background
 	shape.setOutlineThickness(1); // Outline thickness
@@ -35,10 +35,11 @@ Card::Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::T
 
 	text.setCharacterSize(24); // Text size in pixels
 	text.setFillColor((s % 2 == 0) ? sf::Color::Red : sf::Color::Black);
-	text.setPosition(xy);	// Position of number
+	// text.setPosition(xy);	// Position of number
 
 	symbol = sprite; // Set the suit symbol for card
-	symbol.setPosition(xy); // Set symbol position
+	// symbol.setPosition(xy); // Set symbol position
+	updatePosition(xy);	// Set position for all card elements
 }
 
 // Destructor

@@ -22,6 +22,6 @@ class ObjectPositioner {
 		std::vector<Card> createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t,
 						const std::vector<sf::Texture>& texs);
 		float adjustPositioningSpeed(const float& a, const float& b);
-		// TODO shuffle card vector
+		void getNextCardPos(float &offSet, sf::Vector2f &cardPos, sf::Vector2f &destPos);
 };
 #endif	// SRC_OBJECTPOSITIONER_HPP_
