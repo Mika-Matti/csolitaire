@@ -60,34 +60,43 @@ int main() {
 			if(event.type == sf::Event::Closed)
 				window.close();
 		}
-		// Game logic and states TODO make gameStates to switchcase
-		if(gameState == 0) { // Animate cards to go in place in this state
-			if(index < cards.size()) {
-				cardPos = cards[index].getDrawable().getPosition();
-				destPos = cardSlots[0].getPosition();
-				destPos.x = destPos.x+index*0.1f; // This helps to visualize a stack
-				destPos.y = destPos.y-index*0.1f; // and to help game logic to see order of cards
 
-				if(cardPos.x < destPos.x || cardPos.y < destPos.y) {
-					if(cardPos.x < destPos.x) {
-						offSet = objectPositioner.adjustPositioningSpeed(cardPos.x, destPos.x);
-						cardPos.x = cardPos.x+offSet; // Move horizontally towards destination
+		// Game logic and states
+		switch(gameState) {
+			case 0: // Animate cards to go in place in this state
+				if(index < cards.size()) {
+					cardPos = cards[index].getDrawable().getPosition();
+					destPos = cardSlots[0].getPosition();
+					destPos.x = destPos.x+index*0.1f; // This helps to visualize a stack
+					destPos.y = destPos.y-index*0.1f; // and to help game logic to see order of cards
+
+					if(cardPos.x < destPos.x || cardPos.y < destPos.y) {
+						if(cardPos.x < destPos.x) {
+							offSet = objectPositioner.adjustPositioningSpeed(cardPos.x, destPos.x);
+							cardPos.x = cardPos.x+offSet; // Move horizontally towards destination
+						}
+						if(cardPos.y < destPos.y) {
+							offSet = objectPositioner.adjustPositioningSpeed(cardPos.y, destPos.y);
+							cardPos.y = cardPos.y+offSet; // Move vertically towards destination
+						}
+						cards[index].updatePosition(cardPos); // Update coords of object
+					} else {
+						index++;
 					}
-					if(cardPos.y < destPos.y) {
-						offSet = objectPositioner.adjustPositioningSpeed(cardPos.y, destPos.y);
-						cardPos.y = cardPos.y+offSet; // Move vertically towards destination
-					}
-					cards[index].updatePosition(cardPos); // Update coords of object
-				} else {
-					index++;
+				} else { // All cards are now in stack
+					gameState++; // Progress to gamestate 1
+					index = 0; // Reset index
 				}
-			} else {
-				gameState++;
-				index = 0;
-			}
-		} else { // If gamestate > 0
-			// std::cout << cards[0].getText().getPosition().x << std::endl;
+				break;
+			case 1:
+				// TODO Call shuffle method
+				// TODO Deal cards to right slots
+				break;
+			default: // In any other situation
+				gameState = 0; // Reset game
+				break;
 		}
+		// End game logic
 
 		// Redraw window
 		window.clear(bgColor); // Clear the window
