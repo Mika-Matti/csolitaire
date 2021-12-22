@@ -30,7 +30,7 @@ int main() {
 	// Game elements
 	std::vector<sf::RectangleShape> cardSlots;
 	std::vector<Card> cards;
-	std::map<int, int> orderMap { {1, 1} }; // {Order, Card}
+	std::map<int, int> orderMap; // {Order, Card}
 	int gameState = 0;
 	int index = 0; // Used to select card for animating movement in game
 	int stack = 0; // Also used to find final position for card in movement
@@ -106,14 +106,15 @@ int main() {
 					cardPos = cards[index].getDrawable().getPosition();
 					destPos = cardSlots[6+amount-1].getPosition();
 					destPos.y = destPos.y+stack*20.0f; // Vertical stack effect for cards
-
+					// If the card is not yet in it's destination slot
 					if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
 							objectPositioner.getNextCardPos(offSet, cardPos, destPos);
 							cards[index].updatePosition(cardPos); // Update coords of object;
-					} else {
-						// Switch card order places
-						orderMap[((cards.size()-1)-index)+((cards.size()-1)-28+1)] = index;
-						orderMap[index] = ((cards.size()-1)-index)+((cards.size()-1)-28+1);
+					} else { // Push up every card order to place current card below
+						for (int i = cards.size()-1; i > (2*cards.size()-index-28-1); i--) {
+							orderMap[i] = i-1; // Map order i to card i-1
+						}
+						orderMap[2*cards.size()-1-index-28] = index; // Place current card below previous ones
 						// Move onto next card and increase stack size
 						index--;
 						stack++;
