@@ -50,7 +50,7 @@ int main() {
 
 	// Initiate window and object positioner
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); // Game window
-	window.setFramerateLimit(300);
+	// window.setFramerateLimit(300);
 	ObjectPositioner objectPositioner(bgColor, cardDimensions); // Controls objects on window
 
 	// Read positions for card slots from file
@@ -101,7 +101,7 @@ int main() {
 				}
 				break;
 			case 1:
-				// Deal cards from stack 1 to stack 7 where stack n has n(n+n)/2 cards
+				// Deal cards from stack 7 to stack 1 where stack n has n(n+n)/2 cards
 				if(stack < 7 && amount <= 7) {
 					cardPos = cards[index].getDrawable().getPosition();
 					destPos = cardSlots[6+amount-1].getPosition();
@@ -145,12 +145,11 @@ int main() {
 
 		// Redraw window
 		window.clear(bgColor); // Clear the window
-
 		// Draw the objects on the window
 		for(int i = 0; i < cardSlots.size(); i++) {
 			window.draw(cardSlots[i]); // Draw the slots where cards can be placed
 		}
-		// TODO Use an order of placement to draw the cards in right order
+		// Order of placement mapped to cards is used to draw the cards in right order
 		for(int i = 0; i < cards.size(); i++) {
 			window.draw(cards[orderMap[i]].getDrawable());	// Draw the card rectangle
 			window.draw(cards[orderMap[i]].getText());	// Draw the number of card
