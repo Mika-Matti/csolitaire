@@ -105,25 +105,21 @@ int main() {
 				if(stack < 7 && amount <= 7) {
 					cardPos = cards[index].getDrawable().getPosition();
 					destPos = cardSlots[6+amount-1].getPosition();
-					destPos.y = destPos.y+stack*10.0f; // Vertical stack effect for cards
+					destPos.y = destPos.y+stack*20.0f; // Vertical stack effect for cards
 
 					if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
 							objectPositioner.getNextCardPos(offSet, cardPos, destPos);
-							cards[index].updatePosition(cardPos); // Update coords of object
-							std::cout << index << "cardx: " << cardPos.x << " destx: " << destPos.x << std::endl;
-							std::cout << index << "cardy: " << cardPos.y << " desty: " << destPos.y << std::endl;
+							cards[index].updatePosition(cardPos); // Update coords of object;
 					} else {
 						// Switch card order places
 						orderMap[((cards.size()-1)-index)+((cards.size()-1)-28+1)] = index;
 						orderMap[index] = ((cards.size()-1)-index)+((cards.size()-1)-28+1);
-						std::cout << "index : " << index;
-						std::cout << " order : " << cards.size()-1-index+cards.size()-1-28+1;
+						// Move onto next card and increase stack size
 						index--;
 						stack++;
-						std::cout << " Amount: " << amount << " Cards dealt: " << stack << std::endl;
 						if(amount == stack) { // If this slot has had it's cards dealt
-							stack = 0; // Reset stack
-							amount++; // Increase amount
+							stack = 0; // Reset to the empty stack size
+							amount++; // Increase amount of cards allowed in stack
 						}
 					}
 				} else { // The game is set for playing
@@ -135,6 +131,10 @@ int main() {
 				break;
 			case 2:
 				// The gameplay state
+				// TODO highlight card outline on mouseover
+				// TODO if slot 0 is clicked, move the top card to slot 2
+				// TODO if a card in any other slot than 0 is clicked, drag it along with mouse
+				// TODO make the dragged card move automatically to closest slot
 				break;
 			default: // In any other situation
 				gameState = 0; // Reset game

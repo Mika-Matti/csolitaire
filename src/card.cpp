@@ -14,7 +14,7 @@ Card::Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::T
 	// shape.setPosition(xy);
 	shape.setOutlineColor(sf::Color::Black); // Outline of card
 	shape.setFillColor(bg);	// Color of card background
-	shape.setOutlineThickness(1); // Outline thickness
+	shape.setOutlineThickness(2); // Outline thickness
 
 	text = t;
 	// Set the number of card //TODO make this a function

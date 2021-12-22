@@ -62,9 +62,6 @@ float ObjectPositioner::adjustPositioningSpeed(const float& a, const float& b) {
 
 	if(b-a < 0)
 		speed = speed*(-1);
-
-	std::cout << "speed" << speed << std::endl;
-
 	return speed;	// Return the optimal positioning speed
 }
 
