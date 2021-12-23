@@ -37,6 +37,7 @@ int main() {
 	int stack = 0; // Also used to find final position for card in movement
 	int amount = 1; // How many cards will be dealt to this slot
 	int closestStack = 0; // Used for animating card stacks moving to closest stack
+	int prevStack = 0; // For checking what stack the card came from
 	std::pair <int, int> highLighted(0, 0); // Points to a stack and card that is highlighted
 	sf::Vector2f cardPos(20.0f, 20.0f); // Used to track one card position
 	sf::Vector2f destPos(20.0f, 20.0f);	// Used to track destination of that one card
@@ -138,12 +139,11 @@ int main() {
 				break;
 			case 2:
 				// The gameplay state with mouse events
-				// If mouse left button is pressed and highlighted card really has hightlight
-				//
+				// If mouse left button is pressed and highlighted card really has a visual highlight
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
 								cards[highLighted.second].hasOutline(sf::Color::Yellow)) {
 					// Move all cards on top of highlighted card to the last stack
-					if(highLighted.first != orderStacks.size()-1) { // If card&cards on top are in oldstack
+					if (highLighted.first != orderStacks.size()-1) { // If card/cards are in old stack
 						int i = 0; // Iterator to find selected card's position in stack
 						while(orderStacks[highLighted.first][i] != highLighted.second) {
 							i++; // Skip cards till the selected card is found
@@ -153,7 +153,8 @@ int main() {
 							orderStacks[highLighted.first].erase(orderStacks[highLighted.first].begin()+i);
 							// And remove card from it's old stack
 						}
-						highLighted.first = orderStacks.size()-1;
+						prevStack = highLighted.first; // Store old stack index
+						highLighted.first = orderStacks.size()-1; // Update highlight stack index
 					}
 					// Update card position with values converted from mouse position
 					float offY = 20.0f; // For stack offset
@@ -164,20 +165,41 @@ int main() {
 						mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*offY;
 						cards[orderStacks.back()[i]].updatePosition(mouseCoord);
 					}
+				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse is clicked on deck
+					sf::RectangleShape deck = cardSlots[0];
+					sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+					if(objectPositioner.mouseIsOverObject(deck.getPosition(), mousePos)
+								&& orderStacks[0].empty()) {
+						std::cout << "Empty deck clicked" << std::endl;
+						// Move the whole stack 1 to active stack
+						while(!orderStacks[1].empty()) {
+							orderStacks.back().push_back(orderStacks[1].back()); // Push new on top
+							orderStacks[1].pop_back(); // Remove top from old stack
+						}
+						prevStack = 1;
+					}
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
 					if(!orderStacks.back().empty() && !animating) {
 						// Find closest card stack
 						float shortestDistance = 999.0f;
-						for(int i = 2; i < cardSlots.size(); i++) { // Skipping first two slots
-							int mx = sf::Mouse::getPosition(window).x;
-							int	my = sf::Mouse::getPosition(window).y;
-							int	sx = cardSlots[i].getPosition().x;
-							int sy = cardSlots[i].getPosition().y;
-							float distance = sqrt(pow(mx-sx, 2)+pow(my-sy, 2) * 1.0);
-							if(distance < shortestDistance) {
-								closestStack = i;
-								shortestDistance = distance;
+						if(prevStack == 0) { // If previous stack was the deck
+							closestStack = 1; // Then destination is the slot next to deck
+						} else if (prevStack == 1 && orderStacks[1].empty()) {	// And if deck became empty
+							closestStack = 0;
+						} else {
+							for(int i = 2; i < cardSlots.size(); i++) { // Skipping first two slots
+								int mx = sf::Mouse::getPosition(window).x;
+								int	my = sf::Mouse::getPosition(window).y;
+								int	sx = cardSlots[i].getPosition().x;
+								int sy = cardSlots[i].getPosition().y;
+								float distance = sqrt(pow(mx-sx, 2)+pow(my-sy, 2) * 1.0);
+								if(distance < shortestDistance) {
+									if(i >= 6 || (i < 6 && orderStacks.back().size() == 1)) {
+										closestStack = i;
+										shortestDistance = distance;
+									}
+								}
 							}
 						}
 						std::cout << "Closest stack: " << cardSlots[closestStack].getPosition().x
@@ -187,7 +209,9 @@ int main() {
 					if(animating) { // Animate card closing to their destination position
 						cardPos = cards[orderStacks.back()[0]].getDrawable().getPosition();
 						destPos = cardSlots[closestStack].getPosition(); // Destination for cards
-						destPos.y = destPos.y+orderStacks[closestStack].size()*20.0f;
+						if(closestStack > 5) {
+							destPos.y = destPos.y+orderStacks[closestStack].size()*20.0f;
+						}
 						// If the card is not yet in it's destination slot
 						if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
 							objectPositioner.getNextCardPos(offSet, cardPos, destPos);
