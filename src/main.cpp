@@ -31,10 +31,12 @@ int main() {
 	std::vector<sf::RectangleShape> cardSlots;
 	std::vector<Card> cards;
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
+	bool animating = false; // Control animating card movement during gameplay
 	int gameState = 0;
 	int index = 0; // Used to select card for animating movement in game
 	int stack = 0; // Also used to find final position for card in movement
 	int amount = 1; // How many cards will be dealt to this slot
+	int closestStack = 0; // Used for animating card stacks moving to closest stack
 	std::pair <int, int> highLighted(0, 0); // Points to a stack and card that is highlighted
 	sf::Vector2f cardPos(20.0f, 20.0f); // Used to track one card position
 	sf::Vector2f destPos(20.0f, 20.0f);	// Used to track destination of that one card
@@ -137,10 +139,9 @@ int main() {
 			case 2:
 				// The gameplay state with mouse events
 				// If mouse left button is pressed and highlighted card really has hightlight
+				//
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
 								cards[highLighted.second].hasOutline(sf::Color::Yellow)) {
-					std::cout << "Mouse pressed and stack is " << highLighted.first
-									<< " and card is " << highLighted.second << std::endl;
 					// Move all cards on top of highlighted card to the last stack
 					if(highLighted.first != orderStacks.size()-1) { // If card&cards on top are in oldstack
 						int i = 0; // Iterator to find selected card's position in stack
@@ -165,8 +166,40 @@ int main() {
 					}
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
-					if(!orderStacks.back().empty()) {
-						// TODO
+					if(!orderStacks.back().empty() && !animating) {
+						// Find closest card stack
+						float shortestDistance = 999.0f;
+						for(int i = 2; i < cardSlots.size(); i++) { // Skipping first two slots
+							int mx = sf::Mouse::getPosition(window).x;
+							int	my = sf::Mouse::getPosition(window).y;
+							int	sx = cardSlots[i].getPosition().x;
+							int sy = cardSlots[i].getPosition().y;
+							float distance = sqrt(pow(mx-sx, 2)+pow(my-sy, 2) * 1.0);
+							if(distance < shortestDistance) {
+								closestStack = i;
+								shortestDistance = distance;
+							}
+						}
+						std::cout << "Closest stack: " << cardSlots[closestStack].getPosition().x
+										 << " " << cardSlots[closestStack].getPosition().y	<< std::endl;
+						animating = true; // Begin animation of selected cards moving to closest stack
+					}
+					if(animating) { // Animate card closing to their destination position
+						cardPos = cards[orderStacks.back()[0]].getDrawable().getPosition();
+						destPos = cardSlots[closestStack].getPosition(); // Destination for cards
+						destPos.y = destPos.y+orderStacks[closestStack].size()*20.0f;
+						// If the card is not yet in it's destination slot
+						if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
+							objectPositioner.getNextCardPos(offSet, cardPos, destPos);
+							cards[orderStacks.back()[0]].updatePosition(cardPos); // Update coords of object;
+						} else { // Move card reference to the new orderStack vector
+							orderStacks[closestStack].push_back(orderStacks.back()[0]); // Place to the new
+							orderStacks.back().erase(orderStacks.back().begin());
+							// If there are no cards left
+							if(orderStacks.back().empty()) {
+								animating = false;
+						 	}
+						}
 					}
 					// Card highlight on mouseover
 					bool cardFound = false;
@@ -192,9 +225,9 @@ int main() {
 						}
 					}
 				}
-				// TODO if slot 0 is clicked, move the top card to slot 2
-				// TODO if a card in any other slot than 0 is clicked, drag it along with mouse
-				// TODO make the dragged card move automatically to closest slot
+			// TODO if slot 0 is clicked, move the top card to slot 2
+			// TODO if a card in any other slot than 0 is clicked, drag it along with mouse
+			// TODO make the dragged card move automatically to closest slot
 				break;
 			default: // In any other situation
 				gameState = 0; // Reset game
