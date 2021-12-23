@@ -176,16 +176,16 @@ int main() {
 							orderStacks.back().push_back(orderStacks[1].back()); // Push new on top
 							orderStacks[1].pop_back(); // Remove top from old stack
 						}
-						prevStack = 1;
 					}
+					prevStack = -1;
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
 					if(!orderStacks.back().empty() && !animating) {
 						// Find closest card stack
 						float shortestDistance = 999.0f;
-						if(prevStack == 0) { // If previous stack was the deck
-							closestStack = 1; // Then destination is the slot next to deck
-						} else if (prevStack == 1 && orderStacks[1].empty()) {	// And if deck became empty
+						if(prevStack == 0) {
+							closestStack = 1;
+						} else if (prevStack == -1) {
 							closestStack = 0;
 						} else {
 							for(int i = 2; i < cardSlots.size(); i++) { // Skipping first two slots
