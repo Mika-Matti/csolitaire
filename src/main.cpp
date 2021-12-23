@@ -141,21 +141,33 @@ int main() {
 								cards[highLighted.second].hasOutline(sf::Color::Yellow)) {
 					std::cout << "Mouse pressed and stack is " << highLighted.first
 									<< " and card is " << highLighted.second << std::endl;
-					// TODO move all cards on top of highlighted card to the last stack
-					if(highLighted.first != orderStacks.size()-1) { // If card is still in old stack
-						orderStacks[highLighted.first].pop_back(); // Pop selected card from it's stack
-						orderStacks.back().push_back(highLighted.second);	// and push it to active stackvector
+					// Move all cards on top of highlighted card to the last stack
+					if(highLighted.first != orderStacks.size()-1) { // If card&cards on top are in oldstack
+						int i = 0; // Iterator to find selected card's position in stack
+						while(orderStacks[highLighted.first][i] != highLighted.second) {
+							i++; // Skip cards till the selected card is found
+						}
+						while(i < orderStacks[highLighted.first].size()) { // Move all after card i
+							orderStacks.back().push_back(orderStacks[highLighted.first][i]); // To this stack
+							orderStacks[highLighted.first].erase(orderStacks[highLighted.first].begin()+i);
+							// And remove card from it's old stack
+						}
 						highLighted.first = orderStacks.size()-1;
 					}
 					// Update card position with values converted from mouse position
-					sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-					sf::Vector2f mouseCoord = window.mapPixelToCoords(mousePosition);
-					mouseCoord.x = mouseCoord.x-cardDimensions.x/2; // Center the card to mouse
-					mouseCoord.y = mouseCoord.y-cardDimensions.y/2;
-					cards[highLighted.second].updatePosition(mouseCoord);
+					float offY = 20.0f; // For stack offset
+					for(int i = 0; i < orderStacks.back().size(); i++) {
+						sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+						sf::Vector2f mouseCoord = window.mapPixelToCoords(mousePosition);
+						mouseCoord.x = mouseCoord.x-cardDimensions.x/2; // Center the card to mouse
+						mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*offY;
+						cards[orderStacks.back()[i]].updatePosition(mouseCoord);
+					}
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
-
+					if(!orderStacks.back().empty()) {
+						// TODO
+					}
 					// Card highlight on mouseover
 					bool cardFound = false;
 					for(int i = 0; i < orderStacks.size(); i++) { // For every stack
