@@ -135,7 +135,22 @@ int main() {
 				break;
 			case 2:
 				// The gameplay state
-				// TODO highlight card outline on mouseover
+				// If mouse is over a selectable card
+				for(int i = 0; i < orderStacks.size(); i++) { // For every stack
+					if(!orderStacks[i].empty()) { // If that stack contains card references
+						sf::RectangleShape last = cards[orderStacks[i].back()].getDrawable();
+						sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+						if(objectPositioner.mouseIsOverObject(last.getPosition(), mousePos)) {
+							cards[orderStacks[i].back()].updateOutline(sf::Color::Yellow); // Highlight card
+						}	else { // TODO set all colors in game to a vector in start of program
+							if(last.getOutlineColor().r == sf::Color::Yellow.r &&
+									 last.getOutlineColor().g == sf::Color::Yellow.g &&
+									 last.getOutlineColor().b == sf::Color::Yellow.b) { // If card is highlighted
+								cards[orderStacks[i].back()].updateOutline(sf::Color::Black);	// Unhighlight card
+							}
+						}
+					}
+				}
 				// TODO if slot 0 is clicked, move the top card to slot 2
 				// TODO if a card in any other slot than 0 is clicked, drag it along with mouse
 				// TODO make the dragged card move automatically to closest slot

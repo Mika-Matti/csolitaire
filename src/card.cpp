@@ -14,7 +14,7 @@ Card::Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::T
 	// shape.setPosition(xy);
 	shape.setOutlineColor(sf::Color::Black); // Outline of card
 	shape.setFillColor(bg);	// Color of card background
-	shape.setOutlineThickness(2); // Outline thickness
+	shape.setOutlineThickness(3); // Outline thickness
 
 	text = t;
 	// Set the number of card //TODO make this a function
@@ -74,4 +74,8 @@ void Card::updatePosition(sf::Vector2f pos) {
 	sf::FloatRect symbRect = symbol.getLocalBounds();
 	symbol.setOrigin(symbRect.width/2.0f, symbRect.height/2.0f);
 	symbol.setPosition(pos.x+(dims.x/2.0f), pos.y+(dims.y/2.0f)); // Update symbol coordination
+}
+
+void Card::updateOutline(sf::Color c) {
+	shape.setOutlineColor(c);
 }

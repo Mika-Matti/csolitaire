@@ -23,6 +23,6 @@ class ObjectPositioner {
 						const std::vector<sf::Texture>& texs);
 		float adjustPositioningSpeed(const float& a, const float& b);
 		void getNextCardPos(float &offSet, sf::Vector2f &cardPos, sf::Vector2f &destPos);
-		bool mouseIsOverObject(sf::Vector2f &object, sf::Vector2f &mouse);
+		bool mouseIsOverObject(sf::Vector2f object, sf::Vector2i mouse);
 };
 #endif	// SRC_OBJECTPOSITIONER_HPP_

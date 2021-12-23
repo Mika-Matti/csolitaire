@@ -76,6 +76,12 @@ void ObjectPositioner::getNextCardPos(float &offSet, sf::Vector2f &cardPos, sf::
 	}
 }
 
-bool ObjectPositioner::mouseIsOverObject(sf::Vector2f &object, sf::Vector2f &mouse) {
-	std::cout << "mouseIsOverObject called" << std::endl;
+bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2i mouse) {
+	// If mouse x is within card's x boundaries
+	if(mouse.x > object.x && mouse.x < object.x+cardDimensions.x) {
+		if(mouse.y > object.y && mouse.y < object.y+cardDimensions.y) {
+			return true;
+		}
+	}
+	return false;
 }
