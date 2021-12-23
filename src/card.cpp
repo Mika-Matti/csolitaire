@@ -79,3 +79,12 @@ void Card::updatePosition(sf::Vector2f pos) {
 void Card::updateOutline(sf::Color c) {
 	shape.setOutlineColor(c);
 }
+
+bool Card::hasOutline(sf::Color c) {
+	sf::Color col = shape.getOutlineColor();
+	if(col.r == c.r && col.g == c.g && col.b == c.b) {
+		return true;
+	}
+
+	return false;
+}

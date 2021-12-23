@@ -135,15 +135,16 @@ int main() {
 				}
 				break;
 			case 2:
-				// The gameplay state
-				// Mouse activity logic
-				if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left button is pressed
+				// The gameplay state with mouse events
+				// If mouse left button is pressed and highlighted card really has hightlight
+				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
+								cards[highLighted.second].hasOutline(sf::Color::Yellow)) {
 					std::cout << "Mouse pressed and stack is " << highLighted.first
 									<< " and card is " << highLighted.second << std::endl;
 					// TODO move all cards on top of highlighted card to the last stack
 					if(highLighted.first != orderStacks.size()-1) { // If card is still in old stack
 						orderStacks[highLighted.first].pop_back(); // Pop selected card from it's stack
-						orderStacks.back().push_back(highLighted.second);	// and push it to active cards vector
+						orderStacks.back().push_back(highLighted.second);	// and push it to active stackvector
 						highLighted.first = orderStacks.size()-1;
 					}
 					// Update card position with values converted from mouse position
@@ -153,25 +154,23 @@ int main() {
 					mouseCoord.y = mouseCoord.y-cardDimensions.y/2;
 					cards[highLighted.second].updatePosition(mouseCoord);
 				} else { // If mouse is not pressed
-						bool cardFound = false;
-						for(int i = 0; i < orderStacks.size(); i++) { // For every stack
-							if(!orderStacks[i].empty()) { // If that stack contains card references
-								for(int a = orderStacks[i].size()-1; a >= 0; a--) {
-									sf::RectangleShape last = cards[orderStacks[i][a]].getDrawable();
-									sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+					bool cardFound = false;
+					for(int i = 0; i < orderStacks.size(); i++) { // For every stack
+						if(!orderStacks[i].empty()) { // If that stack contains card references
+							for(int a = orderStacks[i].size()-1; a >= 0; a--) {
+								sf::RectangleShape last = cards[orderStacks[i][a]].getDrawable();
+								sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-									// If mouse detects a card under it and no card has been detected yet
-									if(objectPositioner.mouseIsOverObject(last.getPosition(), mousePos) &&
-													!cardFound) {
-										cards[orderStacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight
-										highLighted.first = i; // Store the highlighted card's stack's index
-										highLighted.second = orderStacks[i][a]; // Store the highlighted card index
-										cardFound = true; // Tell program card has been found
-									}	else { // TODO set all colors in game to a vector in start of program
-										if(last.getOutlineColor().r == sf::Color::Yellow.r &&
-												 last.getOutlineColor().g == sf::Color::Yellow.g &&
-												 last.getOutlineColor().b == sf::Color::Yellow.b) { // If card highlighted
-											cards[orderStacks[i][a]].updateOutline(sf::Color::Black);	// Unhighlight
+								// If mouse detects a card under it and no card has been detected yet
+								if(objectPositioner.mouseIsOverObject(last.getPosition(), mousePos) &&
+												!cardFound) {
+									cards[orderStacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight
+									highLighted.first = i; // Store the highlighted card's stack's index
+									highLighted.second = orderStacks[i][a]; // Store the highlighted card index
+									cardFound = true; // Tell program card has been found
+								}	else { // TODO set all colors in game to a vector in start of program
+									if(cards[orderStacks[i][a]].hasOutline(sf::Color::Yellow)) { // If highlighted
+										cards[orderStacks[i][a]].updateOutline(sf::Color::Black);	// Unhighlight
 									}
 								}
 							}

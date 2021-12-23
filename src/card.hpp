@@ -23,5 +23,6 @@ class Card {
 		sf::Sprite getSymbol();
 		void updatePosition(sf::Vector2f pos);
 		void updateOutline(sf::Color c);
+		bool hasOutline(sf::Color c);
 };
 #endif // SRC_CARD_HPP_
