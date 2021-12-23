@@ -154,6 +154,9 @@ int main() {
 					mouseCoord.y = mouseCoord.y-cardDimensions.y/2;
 					cards[highLighted.second].updatePosition(mouseCoord);
 				} else { // If mouse is not pressed
+					// If there are cards in the last stack, place them to the nearest allowed stack
+
+					// Card highlight on mouseover
 					bool cardFound = false;
 					for(int i = 0; i < orderStacks.size(); i++) { // For every stack
 						if(!orderStacks[i].empty()) { // If that stack contains card references
