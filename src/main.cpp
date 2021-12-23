@@ -58,7 +58,7 @@ int main() {
 	objectPositioner.positionCardSlots("slotpositions.cfg"); // Set card slot positions (x,y)
 	cardSlots = objectPositioner.getCardSlotPositions(); // Get and store the drawable slots
 	// Initiate orderStacks vector with cardSlots length
-	for(int i = 0; i < cardSlots.size(); i++) { // For every card slot
+	for(int i = 0; i < cardSlots.size()+1; i++) { // For every card slot + stack moved by mouse
 		std::vector<int> v; // Initiate a stack for card index references
 		orderStacks.push_back(v); // Push it to the order of stacks
 	}
@@ -140,24 +140,39 @@ int main() {
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left button is pressed
 					std::cout << "Mouse pressed and stack is " << highLighted.first
 									<< " and card is " << highLighted.second << std::endl;
+					// TODO move all cards on top of highlighted card to the last stack
+					if(highLighted.first != orderStacks.size()-1) { // If card is still in old stack
+						orderStacks[highLighted.first].pop_back(); // Pop selected card from it's stack
+						orderStacks.back().push_back(highLighted.second);	// and push it to active cards vector
+						highLighted.first = orderStacks.size()-1;
+					}
 					// Update card position with values converted from mouse position
-					// cards[highLighted.second].updatePosition(sf::Mouse::getPosition());
+					sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+					sf::Vector2f mouseCoord = window.mapPixelToCoords(mousePosition);
+					mouseCoord.x = mouseCoord.x-cardDimensions.x/2; // Center the card to mouse
+					mouseCoord.y = mouseCoord.y-cardDimensions.y/2;
+					cards[highLighted.second].updatePosition(mouseCoord);
+				} else { // If mouse is not pressed
+						bool cardFound = false;
+						for(int i = 0; i < orderStacks.size(); i++) { // For every stack
+							if(!orderStacks[i].empty()) { // If that stack contains card references
+								for(int a = orderStacks[i].size()-1; a >= 0; a--) {
+									sf::RectangleShape last = cards[orderStacks[i][a]].getDrawable();
+									sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-				} else {
-					for(int i = 0; i < orderStacks.size(); i++) { // For every stack
-						if(!orderStacks[i].empty()) { // If that stack contains card references
-							sf::RectangleShape last = cards[orderStacks[i].back()].getDrawable();
-							sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-							// If mouse is over card
-							if(objectPositioner.mouseIsOverObject(last.getPosition(), mousePos)) {
-								cards[orderStacks[i].back()].updateOutline(sf::Color::Yellow); // Highlight card
-								highLighted.first = i; // Store the highlighted card's stack's index
-								highLighted.second = orderStacks[i].back(); // Store the highlighted card's index
-							}	else { // TODO set all colors in game to a vector in start of program
-								if(last.getOutlineColor().r == sf::Color::Yellow.r &&
-										 last.getOutlineColor().g == sf::Color::Yellow.g &&
-										 last.getOutlineColor().b == sf::Color::Yellow.b) { // If card is highlighted
-									cards[orderStacks[i].back()].updateOutline(sf::Color::Black);	// Unhighlight card
+									// If mouse detects a card under it and no card has been detected yet
+									if(objectPositioner.mouseIsOverObject(last.getPosition(), mousePos) &&
+													!cardFound) {
+										cards[orderStacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight
+										highLighted.first = i; // Store the highlighted card's stack's index
+										highLighted.second = orderStacks[i][a]; // Store the highlighted card index
+										cardFound = true; // Tell program card has been found
+									}	else { // TODO set all colors in game to a vector in start of program
+										if(last.getOutlineColor().r == sf::Color::Yellow.r &&
+												 last.getOutlineColor().g == sf::Color::Yellow.g &&
+												 last.getOutlineColor().b == sf::Color::Yellow.b) { // If card highlighted
+											cards[orderStacks[i][a]].updateOutline(sf::Color::Black);	// Unhighlight
+									}
 								}
 							}
 						}
