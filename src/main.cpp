@@ -30,7 +30,7 @@ int main() {
 	// Game elements
 	std::vector<sf::RectangleShape> cardSlots;
 	std::vector<Card> cards;
-	std::map<int, int> orderMap; // {Order, Card}
+	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	int gameState = 0;
 	int index = 0; // Used to select card for animating movement in game
 	int stack = 0; // Also used to find final position for card in movement
@@ -56,6 +56,11 @@ int main() {
 	// Read positions for card slots from file
 	objectPositioner.positionCardSlots("slotpositions.cfg"); // Set card slot positions (x,y)
 	cardSlots = objectPositioner.getCardSlotPositions(); // Get and store the drawable slots
+	// Initiate orderStacks vector with cardSlots length
+	for(int i = 0; i < cardSlots.size(); i++) { // For every card slot
+		std::vector<int> v; // Initiate a stack for card index references
+		orderStacks.push_back(v); // Push it to the order of stacks
+	}
 
 	// Create standard 52-card set in objectpositioner
 	cards = objectPositioner.createCards(suits, initPos, cardColor, text, textures);
@@ -76,7 +81,7 @@ int main() {
 					needShuffle = false;
 					// Update drawing order to the map
 					for(int i = 0; i < cards.size(); i++) {
-						orderMap[i] = i; // Set initial drawing order where order i has card i
+						orderStacks[0].push_back(i); // Set initial drawing order where order i has card i
 					}
 				}
 
@@ -110,11 +115,9 @@ int main() {
 					if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
 							objectPositioner.getNextCardPos(offSet, cardPos, destPos);
 							cards[index].updatePosition(cardPos); // Update coords of object;
-					} else { // Push up every card order to place current card below
-						for (int i = cards.size()-1; i > (2*cards.size()-index-28-1); i--) {
-							orderMap[i] = i-1; // Map order i to card i-1
-						}
-						orderMap[2*cards.size()-1-index-28] = index; // Place current card below previous ones
+					} else { // Move card reference to the new orderStack vector
+						orderStacks[0].pop_back(); // Take top item from initial stack order reference vector
+						orderStacks[6+amount-1].push_back(index); // Place to the new vector
 						// Move onto next card and increase stack size
 						index--;
 						stack++;
@@ -150,10 +153,12 @@ int main() {
 			window.draw(cardSlots[i]); // Draw the slots where cards can be placed
 		}
 		// Order of placement mapped to cards is used to draw the cards in right order
-		for(int i = 0; i < cards.size(); i++) {
-			window.draw(cards[orderMap[i]].getDrawable());	// Draw the card rectangle
-			window.draw(cards[orderMap[i]].getText());	// Draw the number of card
-			window.draw(cards[orderMap[i]].getSymbol());	// Draw suit symbol of card
+		for(int i = 0; i < orderStacks.size(); i++) { // For every reference stack
+			for(int a = 0; a < orderStacks[i].size(); a++) { // For every reference in that stack
+				window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
+				window.draw(cards[orderStacks[i][a]].getText());	// Draw the number of card
+				window.draw(cards[orderStacks[i][a]].getSymbol());	// Draw suit symbol of card
+			}
 		}
 		// End drawing
 		window.display(); // Update the window
