@@ -191,8 +191,8 @@ int main() {
 							for(int i = 2; i < cardSlots.size(); i++) { // Skipping first two slots
 								int mx = sf::Mouse::getPosition(window).x;
 								int	my = sf::Mouse::getPosition(window).y;
-								int	sx = cardSlots[i].getPosition().x;
-								int sy = cardSlots[i].getPosition().y;
+								int	sx = cardSlots[i].getPosition().x+cardDimensions.x/2;
+								int sy = cardSlots[i].getPosition().y+cardDimensions.y/2;
 								float distance = sqrt(pow(mx-sx, 2)+pow(my-sy, 2) * 1.0);
 								if(distance < shortestDistance) {
 									if(i >= 6 || (i < 6 && orderStacks.back().size() == 1)) {
