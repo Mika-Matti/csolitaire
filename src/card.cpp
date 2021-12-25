@@ -33,7 +33,6 @@ Card::Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::T
 			break;
 	}
 
-	text.setCharacterSize(24); // Text size in pixels
 	text.setFillColor((s % 2 == 0) ? sf::Color::Red : sf::Color::Black);
 	// text.setPosition(xy);	// Position of number
 

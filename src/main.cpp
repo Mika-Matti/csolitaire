@@ -18,14 +18,22 @@ int main() {
 	sf::Color bgColor = sf::Color::Black; // Window background color
 	sf::Font font; // Font used in cards
 	font.loadFromFile("fonts/Px437_IBM_VGA_8x16.ttf");
+	unsigned int characterSizeUsed = 24;
+  sf::Texture& texture = const_cast<sf::Texture&>(font.getTexture(characterSizeUsed));
+  texture.setSmooth(false);
 
 	// Card Settings
 	sf::Vector2f cardDimensions = sf::Vector2f(100.0f, 150.0f);
 	sf::Vector2f initPos(-100.0f, -150.0f); // Initial card position
 	sf::Color cardColor = sf::Color::White; // Card background color
 	sf::Text text("VALUE", font); // Initial text for cards
+	text.setCharacterSize(characterSizeUsed);
 	int suits = 4;
 	bool needShuffle = true; // If the deck has to be shuffled
+
+	// Initiate window and object positioner
+	ObjectPositioner objectPositioner(bgColor, cardDimensions); // Controls objects on window
+	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); // Game window
 
 	// Game elements
 	std::vector<sf::RectangleShape> cardSlots;
@@ -52,11 +60,6 @@ int main() {
 		textures.push_back(tex);
 	}
 
-	// Initiate window and object positioner
-	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); // Game window
-	// window.setFramerateLimit(300);
-	ObjectPositioner objectPositioner(bgColor, cardDimensions); // Controls objects on window
-
 	// Read positions for card slots from file
 	objectPositioner.positionCardSlots("slotpositions.cfg"); // Set card slot positions (x,y)
 	cardSlots = objectPositioner.getCardSlotPositions(); // Get and store the drawable slots
@@ -70,11 +73,12 @@ int main() {
 	cards = objectPositioner.createCards(suits, initPos, cardColor, text, textures);
 
 	// Start mainloop
-	while (window.isOpen()) {	// Closing mechanism to exit mainloop
+	while (window.isOpen()) {	// Mechanism to exit
 		sf::Event event;
 		while (window.pollEvent(event)) {
-			if(event.type == sf::Event::Closed)
+			if (event.type == sf::Event::Closed) {
 				window.close();
+			}
 		}
 
 		// Game logic and states
@@ -167,7 +171,7 @@ int main() {
 					}
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse is clicked on deck
 					sf::RectangleShape deck = cardSlots[0];
-					sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+					sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 					if(objectPositioner.mouseIsOverObject(deck.getPosition(), mousePos)
 								&& orderStacks[0].empty()) {
 						std::cout << "Empty deck clicked" << std::endl;
@@ -182,15 +186,15 @@ int main() {
 					// If there are cards in the last stack, place them to the nearest allowed stack
 					if(!orderStacks.back().empty() && !animating) {
 						// Find closest card stack
-						float shortestDistance = 999.0f;
+						float shortestDistance = 9999999.0f;
 						if(prevStack == 0) {
 							closestStack = 1;
 						} else if (prevStack == -1) {
 							closestStack = 0;
 						} else {
 							for(int i = 2; i < cardSlots.size(); i++) { // Skipping first two slots
-								int mx = sf::Mouse::getPosition(window).x;
-								int	my = sf::Mouse::getPosition(window).y;
+								int mx = window.mapPixelToCoords(sf::Mouse::getPosition(window)).x;
+								int	my = window.mapPixelToCoords(sf::Mouse::getPosition(window)).y;
 								int	sx = cardSlots[i].getPosition().x+cardDimensions.x/2;
 								int sy = cardSlots[i].getPosition().y+cardDimensions.y/2;
 								float distance = sqrt(pow(mx-sx, 2)+pow(my-sy, 2) * 1.0);
@@ -231,7 +235,7 @@ int main() {
 						if(!orderStacks[i].empty()) { // If that stack contains card references
 							for(int a = orderStacks[i].size()-1; a >= 0; a--) {
 								sf::RectangleShape last = cards[orderStacks[i][a]].getDrawable();
-								sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+								sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
 								// If mouse detects a card under it and no card has been detected yet
 								if(objectPositioner.mouseIsOverObject(last.getPosition(), mousePos) &&

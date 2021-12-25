@@ -52,7 +52,7 @@ std::vector<sf::RectangleShape> ObjectPositioner::getCardSlotPositions() {
 
 float ObjectPositioner::adjustPositioningSpeed(const float& a, const float& b) {
 	float v = (b > a) ? b-a : a-b; // First get the distance between object and destination
-	float minSpeed = 0.1f;
+	float minSpeed = 0.01f;
 	float speed = minSpeed;	// Store the return value
 	float base = 10.0f;
 	while(v >= minSpeed*base) { // This while loop keeps dividing v to find amount of digits
@@ -76,7 +76,7 @@ void ObjectPositioner::getNextCardPos(float &offSet, sf::Vector2f &cardPos, sf::
 	}
 }
 
-bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2i mouse) {
+bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f mouse) {
 	// If mouse x is within card's x boundaries
 	if(mouse.x > object.x && mouse.x < object.x+cardDimensions.x) {
 		if(mouse.y > object.y && mouse.y < object.y+cardDimensions.y) {
