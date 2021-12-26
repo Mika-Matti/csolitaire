@@ -28,6 +28,7 @@ int main() {
 	sf::Color cardColor = sf::Color::White; // Card background color
 	sf::Text text("VALUE", font); // Initial text for cards
 	text.setCharacterSize(characterSizeUsed);
+	sf::Sprite cardCover; // Cover used if card is flipped down
 	int suits = 4;
 	bool needShuffle = true; // If the deck has to be shuffled
 
@@ -59,6 +60,7 @@ int main() {
 		tex.loadFromFile(file); // Load image to texture
 		textures.push_back(tex);
 	}
+	cardCover.setTexture(textures[4]); // Add texture to card cover
 
 	// Read positions for card slots from file
 	objectPositioner.positionCardSlots("slotpositions.cfg"); // Set card slot positions (x,y)
@@ -141,8 +143,21 @@ int main() {
 					amount = 1; // Reset amount of cards to deal to current slot
 				}
 				break;
-			case 2:
-				// The gameplay state with mouse events
+			case 2: // The gameplay state and mouse events
+				// Check for cards that can be flipped upside
+				for(int i = 0; i < orderStacks.size(); i++) { // For every stack
+					if (!orderStacks[i].empty()) { // If the stack has cards
+						if (i == 0) { // If the stack is deck
+							for (int a = 0; a < orderStacks[i].size(); a++) // For every card in deck
+								 if (!cards[orderStacks[i][a]].isFlipped()) // If the card isn't flipped
+				 						cards[orderStacks[i][a]].setFlipped(true); // Flip the card
+						} else if (cards[orderStacks[i].back()].isFlipped()) { // If the top card is flipped
+								if(orderStacks.back().empty()) // If there are no cards currently active
+									cards[orderStacks[i].back()].setFlipped(false); // Unflip the card
+						}
+					}
+				}
+
 				// If mouse left button is pressed and highlighted card really has a visual highlight
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
 								cards[highLighted.second].hasOutline(sf::Color::Yellow)) {
@@ -272,11 +287,18 @@ int main() {
 		// Order of placement mapped to cards is used to draw the cards in right order
 		for(int i = 0; i < orderStacks.size(); i++) { // For every reference stack
 			for(int a = 0; a < orderStacks[i].size(); a++) { // For every reference in that stack
-				window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
-				window.draw(cards[orderStacks[i][a]].getText());	// Draw the number of card
-				window.draw(cards[orderStacks[i][a]].getSymbol());	// Draw suit symbol of card
+				if(cards[orderStacks[i][a]].isFlipped()) { // If card is coverside up
+					window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
+					cardCover.setPosition(cards[orderStacks[i][a]].getDrawable().getPosition());
+					window.draw(cardCover);
+				} else {
+					window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
+					window.draw(cards[orderStacks[i][a]].getText());	// Draw the number of card
+					window.draw(cards[orderStacks[i][a]].getSymbol());	// Draw suit symbol of card
+				}
 			}
 		}
+
 		// End drawing
 		window.display(); // Update the window
 	}

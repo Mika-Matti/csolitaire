@@ -87,3 +87,11 @@ bool Card::hasOutline(sf::Color c) {
 
 	return false;
 }
+
+bool Card::isFlipped() {
+	return flipped;
+}
+
+void Card::setFlipped(bool t) {
+	flipped = t;
+}
