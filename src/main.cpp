@@ -31,6 +31,7 @@ int main() {
 	text.setCharacterSize(characterSizeUsed);
 	sf::Sprite cardBack; // Cover used if card is flipped down
 	sf::Sprite cardFront; // Used if card is flipped up
+	float stackOffsetY = 25.0f; // When cards are stacked vertically in the lower level
 	int suits = 4;
 	bool needShuffle = true; // If the deck has to be shuffled
 
@@ -131,7 +132,7 @@ int main() {
 				if(stack < 7 && amount <= 7) {
 					cardPos = cards[index].getDrawable().getPosition();
 					destPos = cardSlots[6+amount-1].getPosition();
-					destPos.y = destPos.y+stack*20.0f; // Vertical stack effect for cards
+					destPos.y = destPos.y+stack*stackOffsetY; // Vertical stack effect for cards
 					// If the card is not yet in it's destination slot
 					if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
 							objectPositioner.getNextCardPos(offSet, cardPos, destPos);
@@ -186,12 +187,11 @@ int main() {
 						highLighted.first = orderStacks.size()-1; // Update highlight stack index
 					}
 					// Update card position with values converted from mouse position
-					float offY = 20.0f; // For stack offset
 					for(int i = 0; i < orderStacks.back().size(); i++) {
 						sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
 						sf::Vector2f mouseCoord = window.mapPixelToCoords(mousePosition);
 						mouseCoord.x = mouseCoord.x-cardDimensions.x/2; // Center the card to mouse
-						mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*offY;
+						mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*stackOffsetY;
 						cards[orderStacks.back()[i]].updatePosition(mouseCoord);
 					}
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse is clicked on deck
@@ -241,7 +241,7 @@ int main() {
 						cardPos = cards[orderStacks.back()[0]].getDrawable().getPosition();
 						destPos = cardSlots[closestStack].getPosition(); // Destination for cards
 						if(closestStack > 5) {
-							destPos.y = destPos.y+orderStacks[closestStack].size()*20.0f;
+							destPos.y = destPos.y+orderStacks[closestStack].size()*stackOffsetY;
 						}
 						// If the card is not yet in it's destination slot
 						if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
