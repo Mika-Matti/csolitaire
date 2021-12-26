@@ -50,6 +50,10 @@ int Card::getNumber() {
 	return number;
 }
 
+int Card::getSuit() {
+	return suit;
+}
+
 sf::RectangleShape Card::getDrawable() {
 	return shape;
 }

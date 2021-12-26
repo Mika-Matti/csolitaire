@@ -20,6 +20,7 @@ class Card {
 
 		// Method declarations
 		int getNumber();
+		int getSuit();
 		sf::RectangleShape getDrawable();
 		sf::Text getText();
 		sf::Sprite getSymbol();

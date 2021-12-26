@@ -41,7 +41,8 @@ int main() {
 	std::vector<Card> cards;
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	bool animating = false; // Control animating card movement during gameplay
-	int gameState = 0;
+	bool gameWon = false; // Flagged true if win conditions are all checked true
+	int gameState = 0; // Used to control the phases of the game
 	int index = 0; // Used to select card for animating movement in game
 	int stack = 0; // Also used to find final position for card in movement
 	int amount = 1; // How many cards will be dealt to this slot
@@ -87,10 +88,17 @@ int main() {
 		switch(gameState) {
 			case 0: // Shuffle deck and animate cards to go in place in this state
 				if(needShuffle) {
-					std::random_shuffle(cards.begin(), cards.end());
+					// Make sure every stack in orderStacks is empty
+					for(int i = 0; i < orderStacks.size(); i++) { // For every stack
+						if(!orderStacks[i].empty()) // If that stack is not empty
+							orderStacks[i].clear(); // Clear it
+					}
+					std::random_shuffle(cards.begin(), cards.end()); // Perform the shuffling of deck
 					needShuffle = false;
 					// Update drawing order to the map
 					for(int i = 0; i < cards.size(); i++) {
+						if(!cards[i].isFlipped()) // If this card is not flipped
+							cards[i].setFlipped(true); // Flip the card to face downside
 						orderStacks[0].push_back(i); // Set initial drawing order where order i has card i
 					}
 				}
@@ -102,7 +110,7 @@ int main() {
 					destPos.x = destPos.x+stack*0.1f; // This helps to visualize a stack
 					destPos.y = destPos.y-stack*0.1f; // and to help game logic to see order of cards
 
-				 if (std::abs(cardPos.x-destPos.x) > 0.0001f || std::abs(cardPos.y-destPos.y) > 0.0001f) {
+				 if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
 						objectPositioner.getNextCardPos(offSet, cardPos, destPos);
 						cards[index].updatePosition(cardPos); // Update coords of object
 					} else {
@@ -268,9 +276,40 @@ int main() {
 						}
 					}
 				}
-			// TODO if slot 0 is clicked, move the top card to slot 2
-			// TODO if a card in any other slot than 0 is clicked, drag it along with mouse
-			// TODO make the dragged card move automatically to closest slot
+				// Check win conditions
+				gameWon = true; // Flag game to be won, and then go through win conditions
+				for(int i = 2; i < 6; i++) { // For every slot in upper right area of window
+					if(orderStacks[i].size() != 13) { // If stack is not the complete size
+						gameWon = false;
+						break; // Stop going through cards
+					}
+					int cSuit = 0; // This is used to check that the stack only has same suit cards
+					for(int a = 0; a < orderStacks[i].size(); a++) { // For every card in the stack
+						if(a == 0) // If we are at the first card of the stack
+							cSuit = cards[orderStacks[i][a]].getSuit(); // Set the suit of the stack
+						if(cards[orderStacks[i][a]].getSuit() != cSuit) { // If card don't have right suit
+							gameWon = false;
+							break;
+						}
+						if(cards[orderStacks[i][a]].getNumber() != a+1) { // If card number is not a+1
+							gameWon = false;
+							break;
+						}
+					}
+				} // End checking win conditions
+
+				if (gameWon) { // If all conditions for winning were met
+					std::cout << "Winner is you." << std::endl;
+					needShuffle = true;
+					index = 0;
+					stack = 0;
+					amount = 1;
+					gameState++;
+				}
+				break;	// Gameplay part ends
+			case 3: // If the game has been won
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) // If mouse is clicked
+					gameState = 0; // Reset game
 				break;
 			default: // In any other situation
 				gameState = 0; // Reset game
