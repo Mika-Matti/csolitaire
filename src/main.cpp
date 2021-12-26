@@ -29,7 +29,8 @@ int main() {
 	sf::Color cardColor = sf::Color::White; // Card background color
 	sf::Text text("VALUE", font); // Initial text for cards
 	text.setCharacterSize(characterSizeUsed);
-	sf::Sprite cardCover; // Cover used if card is flipped down
+	sf::Sprite cardBack; // Cover used if card is flipped down
+	sf::Sprite cardFront; // Used if card is flipped up
 	int suits = 4;
 	bool needShuffle = true; // If the deck has to be shuffled
 
@@ -62,7 +63,8 @@ int main() {
 		tex.loadFromFile(file); // Load image to texture
 		textures.push_back(tex);
 	}
-	cardCover.setTexture(textures[4]); // Add texture to card cover
+	cardBack.setTexture(textures[4]); // Add texture to card back
+	cardFront.setTexture(textures[5]); // Add texture to card front
 
 	// Read positions for card slots from file
 	objectPositioner.positionCardSlots("slotpositions.cfg"); // Set card slot positions (x,y)
@@ -330,10 +332,12 @@ int main() {
 			for(int a = 0; a < orderStacks[i].size(); a++) { // For every reference in that stack
 				if(cards[orderStacks[i][a]].isFlipped()) { // If card is coverside up
 					window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
-					cardCover.setPosition(cards[orderStacks[i][a]].getDrawable().getPosition());
-					window.draw(cardCover);
+					cardBack.setPosition(cards[orderStacks[i][a]].getDrawable().getPosition());
+					window.draw(cardBack);
 				} else {
 					window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
+					cardFront.setPosition(cards[orderStacks[i][a]].getDrawable().getPosition());
+					window.draw(cardFront); // Draw the card texture
 					window.draw(cards[orderStacks[i][a]].getText());	// Draw the number of card
 					window.draw(cards[orderStacks[i][a]].getSymbol());	// Draw suit symbol of card
 				}

@@ -34,10 +34,7 @@ Card::Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::T
 	}
 
 	text.setFillColor((s % 2 == 0) ? sf::Color::Red : sf::Color::Black);
-	// text.setPosition(xy);	// Position of number
-
 	symbol = sprite; // Set the suit symbol for card
-	// symbol.setPosition(xy); // Set symbol position
 	updatePosition(xy);	// Set position for all card elements
 }
 
@@ -71,12 +68,12 @@ void Card::updatePosition(sf::Vector2f pos) {
 	sf::Vector2f dims = shape.getSize(); // Take the size of the card
 
 	sf::FloatRect textRect = text.getLocalBounds();
-	text.setOrigin(textRect.left + textRect.width/2.0f, textRect.top  + textRect.height/2.0f);
-	text.setPosition(pos.x+(dims.x/10.0f), pos.y+(dims.y/10.0f)); // Update number position
+	text.setOrigin(textRect.left + textRect.width/2, textRect.top + textRect.height/2);
+	text.setPosition(pos.x+12.5+textRect.width/2, pos.y+20); // Update number position
 
 	sf::FloatRect symbRect = symbol.getLocalBounds();
-	symbol.setOrigin(symbRect.width/2.0f, symbRect.height/2.0f);
-	symbol.setPosition(pos.x+(dims.x/2.0f), pos.y+(dims.y/2.0f)); // Update symbol coordination
+	symbol.setOrigin(symbRect.width/2, symbRect.height/2);
+	symbol.setPosition(pos.x+(dims.x/2), pos.y+(dims.y/2)); // Update symbol coordination
 }
 
 void Card::updateOutline(sf::Color c) {
