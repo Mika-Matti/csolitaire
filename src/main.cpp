@@ -97,6 +97,7 @@ int main() {
 						if(!orderStacks[i].empty()) // If that stack is not empty
 							orderStacks[i].clear(); // Clear it
 					}
+					std::srand(std::time(0));
 					std::random_shuffle(cards.begin(), cards.end()); // Perform the shuffling of deck
 					needShuffle = false;
 					// Update drawing order to the map
