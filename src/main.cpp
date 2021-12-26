@@ -166,9 +166,11 @@ int main() {
 					}
 				}
 
-				// If mouse left button is pressed and highlighted card really has a visual highlight
+				// If mouse left button is pressed and highlighted has a visual highlight and isn't flipped
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
-								cards[highLighted.second].hasOutline(sf::Color::Yellow)) {
+								cards[highLighted.second].hasOutline(sf::Color::Yellow) &&
+								(highLighted.first == 0 && cards[highLighted.second].isFlipped() ||
+								highLighted.first > 0 && !cards[highLighted.second].isFlipped())) {
 					// Move all cards on top of highlighted card to the last stack
 					if (highLighted.first != orderStacks.size()-1) { // If card/cards are in old stack
 						int i = 0; // Iterator to find selected card's position in stack
@@ -196,15 +198,15 @@ int main() {
 					sf::RectangleShape deck = cardSlots[0];
 					sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 					if(objectPositioner.mouseIsOverObject(deck.getPosition(), mousePos)
-								&& orderStacks[0].empty()) {
+								&& orderStacks[0].empty() && orderStacks.back().empty()) {
 						std::cout << "Empty deck clicked" << std::endl;
 						// Move the whole stack 1 to active stack
 						while(!orderStacks[1].empty()) {
 							orderStacks.back().push_back(orderStacks[1].back()); // Push new on top
 							orderStacks[1].pop_back(); // Remove top from old stack
 						}
+						prevStack = -1;
 					}
-					prevStack = -1;
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
 					if(!orderStacks.back().empty() && !animating) {
