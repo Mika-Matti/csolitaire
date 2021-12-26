@@ -9,6 +9,7 @@
 #include <SFML/Graphics.hpp>
 #include "objectpositioner.hpp"
 #include "card.hpp"
+#include "gamefunctions.hpp"
 
 namespace fs = std::filesystem;
 
@@ -166,11 +167,8 @@ int main() {
 					}
 				}
 
-				// If mouse left button is pressed and highlighted has a visual highlight and isn't flipped
-				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
-								cards[highLighted.second].hasOutline(sf::Color::Yellow) &&
-								(highLighted.first == 0 && cards[highLighted.second].isFlipped() ||
-								highLighted.first > 0 && !cards[highLighted.second].isFlipped())) {
+				// If mouse left button is pressed and game allows the move
+				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && moveIsLegal(cards, highLighted)) {
 					// Move all cards on top of highlighted card to the last stack
 					if (highLighted.first != orderStacks.size()-1) { // If card/cards are in old stack
 						int i = 0; // Iterator to find selected card's position in stack
