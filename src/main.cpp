@@ -215,7 +215,7 @@ int main() {
 						} else if (prevStack == -1) {
 							closestStack = 0;
 						} else {
-							for(int i = 2; i < cardSlots.size(); i++) { // Skipping first two slots
+							for(int i = 1; i < cardSlots.size(); i++) { // Skipping first slot
 								int mx = window.mapPixelToCoords(sf::Mouse::getPosition(window)).x;
 								int	my = window.mapPixelToCoords(sf::Mouse::getPosition(window)).y;
 								int	sx = cardSlots[i].getPosition().x+cardDimensions.x/2;
@@ -223,8 +223,10 @@ int main() {
 								float distance = sqrt(pow(mx-sx, 2)+pow(my-sy, 2) * 1.0);
 								if(distance < shortestDistance) {
 									if(i >= 6 || (i < 6 && orderStacks.back().size() == 1)) {
-										closestStack = i;
-										shortestDistance = distance;
+										if(i == 1 && prevStack == 1 || i > 1) {
+											closestStack = i;
+											shortestDistance = distance;
+										}
 									}
 								}
 							}
