@@ -85,3 +85,58 @@ bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f mouse
 	}
 	return false;
 }
+
+void ObjectPositioner::compressStack(std::vector<Card> &cards,
+			std::vector<int> &stack, float &maxStackHeight, float &stackOffsetY) {
+
+	int flipped = 0; // Store amount of flipped cards while compressing them first
+	float startY = cards[stack[0]].getDrawable().getPosition().y;
+	float endY = cards[stack.back()].getDrawable().getPosition().y;
+	float flipEndY = startY;
+	float stackHeight = endY+cardDimensions.y-startY;
+	float flippedOffset = 0.0f;
+	float newOffset = (maxStackHeight-cardDimensions.y)/stack.size(); // Default
+	float minOffset = 2.0f;
+	bool compressFlipped = false; // Initial assumption is there are no flipped cards
+
+	// Find the amount of flipped cards
+	for(int i = 0; i < stack.size(); i++)
+		if(cards[stack[i]].isFlipped())
+			flipped++;
+
+	if(flipped > 0) { // If stack contains flipped cards
+		flippedOffset = (maxStackHeight-cardDimensions.y-stackOffsetY*(stack.size()-flipped))/flipped;
+		flipEndY = cards[stack[flipped-1]].getDrawable().getPosition().y+flippedOffset;
+		// Find new offset
+		if(flippedOffset > minOffset) { // If flipped part of stack has greater offset than minimum
+			compressFlipped = true; // Flipped can be compressed further
+			newOffset = flippedOffset;
+		} else {
+			compressFlipped = false; // Must compress the nonflipped cards instead to make room
+			newOffset = (maxStackHeight-cardDimensions.y-(flipEndY-startY))/(stack.size()-flipped);
+		}
+	}
+
+	if(newOffset < minOffset)
+		newOffset = minOffset;
+
+	// If either stack is taller than allowed stack height or shorter and offset could be greater
+	if(maxStackHeight < stackHeight || (maxStackHeight > stackHeight && newOffset <= stackOffsetY)) {
+		// Start compressing unflipped or unflipped cards
+		for(int i = 1; i < stack.size(); i++) { // For all cards that are not the base card
+			bool isFlipped = cards[stack[i]].isFlipped();
+	 		sf::Vector2f curPos = cards[stack[i]].getDrawable().getPosition();
+	 		if(isFlipped == compressFlipped) {
+				if(compressFlipped) // If flipped are being compressed
+	 				curPos.y = startY+i*newOffset; // Compress flipped cards from start
+	 			else // If unflipped are being compressed
+					curPos.y = flipEndY+(i-flipped)*newOffset; // Start from the end of flipped part
+			} else if (compressFlipped && !isFlipped) {
+	 			// Move these cards up with the compressed flipped card
+				std::cout << i-flipped << std::endl;
+				curPos.y = flipEndY+(i-flipped)*stackOffsetY;
+			}
+			cards[stack[i]].updatePosition(curPos);
+	 	}
+	}
+}

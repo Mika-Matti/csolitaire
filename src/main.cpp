@@ -158,7 +158,7 @@ int main() {
 				}
 				break;
 			case 2: // The gameplay state and mouse events
-				// Check for cards that can be flipped upside or if stack height is more than maximum
+				// Check for cards that can be flipped or for stacks that need vertical compression
 				for(int i = 0; i < orderStacks.size(); i++) { // For every stack
 					if (!orderStacks[i].empty()) { // If the stack has cards
 						if (i == 0) { // If the stack is deck
@@ -170,20 +170,10 @@ int main() {
 								if(orderStacks.back().empty()) // If there are no cards currently active
 									cards[orderStacks[i].back()].setFlipped(false); // Unflip the card
 							}
-							// TODO Check if stack is too high and shrink it
-							if(orderStacks.back().empty() && !animating) {
-								float startY = cardSlots[i].getPosition().y;
-								float endY = cards[orderStacks[i].back()].getDrawable().getPosition().y;
-								float stackHeight = endY+cardDimensions.y-startY;
-								float newOffset = (maxStackHeight-cardDimensions.y)/orderStacks[i].size();
-								if(maxStackHeight < stackHeight || (maxStackHeight > stackHeight &&
-											newOffset < stackOffsetY)) {
-									for(int a = 1; a < orderStacks[i].size(); a++) {
-										sf::Vector2f curPos = cards[orderStacks[i][a]].getDrawable().getPosition();
-										curPos.y = startY+a*newOffset;  // Update current positionwith new offset
-										cards[orderStacks[i][a]].updatePosition(curPos);
-									}
-								}
+							// Check if stack height needs to be compressed or can be decompressed
+							if(orderStacks.back().empty() && !animating && i > 5 && orderStacks[i].size() > 1) {
+								objectPositioner.compressStack(cards, orderStacks[i],
+											maxStackHeight, stackOffsetY);
 							}
 						}
 					}

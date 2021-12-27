@@ -24,5 +24,7 @@ class ObjectPositioner {
 		float adjustPositioningSpeed(const float& a, const float& b);
 		void getNextCardPos(float &offSet, sf::Vector2f &cardPos, sf::Vector2f &destPos);
 		bool mouseIsOverObject(sf::Vector2f object, sf::Vector2f mouse);
+		void compressStack(std::vector<Card> &cards, std::vector<int> &stack,
+						float &maxStackHeight, float &stackOffsetY);
 };
 #endif	// SRC_OBJECTPOSITIONER_HPP_
