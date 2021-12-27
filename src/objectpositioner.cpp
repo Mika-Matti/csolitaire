@@ -133,7 +133,6 @@ void ObjectPositioner::compressStack(std::vector<Card> &cards,
 					curPos.y = flipEndY+(i-flipped)*newOffset; // Start from the end of flipped part
 			} else if (compressFlipped && !isFlipped) {
 	 			// Move these cards up with the compressed flipped card
-				std::cout << i-flipped << std::endl;
 				curPos.y = flipEndY+(i-flipped)*stackOffsetY;
 			}
 			cards[stack[i]].updatePosition(curPos);
