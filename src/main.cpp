@@ -32,6 +32,7 @@ int main() {
 	sf::Sprite cardBack; // Cover used if card is flipped down
 	sf::Sprite cardFront; // Used if card is flipped up
 	float stackOffsetY = 25.0f; // When cards are stacked vertically in the lower level
+	float maxStackHeight = cardDimensions.y+7*stackOffsetY; // Shrink cards if stack gets higher
 	int suits = 4;
 	bool needShuffle = true; // If the deck has to be shuffled
 
@@ -157,16 +158,33 @@ int main() {
 				}
 				break;
 			case 2: // The gameplay state and mouse events
-				// Check for cards that can be flipped upside
+				// Check for cards that can be flipped upside or if stack height is more than maximum
 				for(int i = 0; i < orderStacks.size(); i++) { // For every stack
 					if (!orderStacks[i].empty()) { // If the stack has cards
 						if (i == 0) { // If the stack is deck
 							for (int a = 0; a < orderStacks[i].size(); a++) // For every card in deck
-								 if (!cards[orderStacks[i][a]].isFlipped()) // If the card isn't flipped
-				 						cards[orderStacks[i][a]].setFlipped(true); // Flip the card
-						} else if (cards[orderStacks[i].back()].isFlipped()) { // If the top card is flipped
+						 		if (!cards[orderStacks[i][a]].isFlipped()) // If the card isn't flipped
+				 					cards[orderStacks[i][a]].setFlipped(true); // Flip the card
+						} else { // If the stack is any other stack
+							if (cards[orderStacks[i].back()].isFlipped()) { // If the top card is flipped
 								if(orderStacks.back().empty()) // If there are no cards currently active
 									cards[orderStacks[i].back()].setFlipped(false); // Unflip the card
+							}
+							// TODO Check if stack is too high and shrink it
+							if(orderStacks.back().empty() && !animating) {
+								float startY = cardSlots[i].getPosition().y;
+								float endY = cards[orderStacks[i].back()].getDrawable().getPosition().y;
+								float stackHeight = endY+cardDimensions.y-startY;
+								float newOffset = (maxStackHeight-cardDimensions.y)/orderStacks[i].size();
+								if(maxStackHeight < stackHeight || (maxStackHeight > stackHeight &&
+											newOffset < stackOffsetY)) {
+									for(int a = 1; a < orderStacks[i].size(); a++) {
+										sf::Vector2f curPos = cards[orderStacks[i][a]].getDrawable().getPosition();
+										curPos.y = startY+a*newOffset;  // Update current positionwith new offset
+										cards[orderStacks[i][a]].updatePosition(curPos);
+									}
+								}
+							}
 						}
 					}
 				}
@@ -281,6 +299,7 @@ int main() {
 						}
 					}
 				}
+
 				// Check win conditions
 				gameWon = true; // Flag game to be won, and then go through win conditions
 				for(int i = 2; i < 6; i++) { // For every slot in upper right area of window
@@ -331,12 +350,11 @@ int main() {
 		// Order of placement mapped to cards is used to draw the cards in right order
 		for(int i = 0; i < orderStacks.size(); i++) { // For every reference stack
 			for(int a = 0; a < orderStacks[i].size(); a++) { // For every reference in that stack
+				window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
 				if(cards[orderStacks[i][a]].isFlipped()) { // If card is coverside up
-					window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
 					cardBack.setPosition(cards[orderStacks[i][a]].getDrawable().getPosition());
 					window.draw(cardBack);
 				} else {
-					window.draw(cards[orderStacks[i][a]].getDrawable());	// Draw the card rectangle
 					cardFront.setPosition(cards[orderStacks[i][a]].getDrawable().getPosition());
 					window.draw(cardFront); // Draw the card texture
 					window.draw(cards[orderStacks[i][a]].getText());	// Draw the number of card
