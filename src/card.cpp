@@ -69,7 +69,7 @@ void Card::updatePosition(sf::Vector2f pos) {
 
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(textRect.left + textRect.width/2, textRect.top + textRect.height/2);
-	text.setPosition(pos.x+12.5+textRect.width/2, pos.y+12.5+textRect.height/2); // Update number position
+	text.setPosition(pos.x+10+textRect.width/2, pos.y+10+textRect.height/2); // Update number position
 
 	sf::FloatRect symbRect = symbol.getLocalBounds();
 	symbol.setOrigin(symbRect.width/2, symbRect.height/2);
