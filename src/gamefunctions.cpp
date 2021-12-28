@@ -1,5 +1,6 @@
 // Copyright 2021 Mika-Matti Auerkallio
 
+#include <iostream>
 #include <vector>
 #include <utility>
 #include "SFML/Graphics.hpp"
@@ -8,10 +9,45 @@
 
 // Function definitions
 
-bool moveIsLegal(std::vector<Card> &cards, std::pair<int, int> &highLighted) {
-	if(cards[highLighted.second].hasOutline(sf::Color::Yellow) &&
-		(highLighted.first == 0 && cards[highLighted.second].isFlipped() ||
-		highLighted.first > 0 && !cards[highLighted.second].isFlipped())) {
+bool areSameColor(sf::Color &a, sf::Color &b) {
+	if(a.r == b.r && a.g == b.g && a.b == b.b) {
+		return true;
+	}
+	return false;
+}
+
+bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<int, int> &select) {
+	// If the selected card is not flipped
+	if(cards[select.second].hasOutline(sf::Color::Yellow) &&
+			(select.first == 0 && cards[select.second].isFlipped() ||
+			select.first > 0 && !cards[select.second].isFlipped())) {
+		std::cout << select.first << " " << select.second << " Select card number: " <<
+		cards[select.second].getNumber() << std::endl;
+		if(select.second != stack.back()) { // If the selected is not the top card
+		// If the stack from selected to last card is descending and color varies on every card
+			int ind = 999;
+			int prevNumber = -1;
+			sf::Color prevCol;
+			for(int i = 0; i < stack.size(); i++) {
+				std::cout << "Current stack[i]: " << stack[i] << std::endl;
+				if(stack[i] == select.second) { // If the select card from stack is found
+					ind = i;
+					prevNumber = cards[stack[i]].getNumber(); // Store the number of the card
+					prevCol = cards[stack[i]].getText().getFillColor(); // Store the color of the card
+				} else if (i > ind) { // If card comes after select card
+					int thisNumber = cards[stack[i]].getNumber();
+					sf::Color thisCol = cards[stack[i]].getText().getFillColor();
+					if(thisNumber != prevNumber-1 || areSameColor(prevCol, thisCol)) {
+						std::cout << "i: " << i << " thisNumber: " << thisNumber << " prevNumber: " << prevNumber
+						<< " areSameColor: " << areSameColor(prevCol, thisCol) << std::endl;
+						return false;
+					} else {
+						prevNumber = thisNumber;
+						prevCol = thisCol;
+					}
+				}
+			}
+		}
 		return true;
 	}
 	return false;

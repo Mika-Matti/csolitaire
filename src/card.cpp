@@ -85,7 +85,6 @@ bool Card::hasOutline(sf::Color c) {
 	if(col.r == c.r && col.g == c.g && col.b == c.b) {
 		return true;
 	}
-
 	return false;
 }
 

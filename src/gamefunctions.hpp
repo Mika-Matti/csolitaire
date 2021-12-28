@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 
-bool moveIsLegal(std::vector<Card> &cards, std::pair<int, int> &highLighted);
+bool areSameColor(sf::Color &a, sf::Color &b);
+bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<int, int> &select);
 
 #endif // SRC_GAMEFUNCTIONS_HPP_
