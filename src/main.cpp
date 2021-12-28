@@ -32,7 +32,7 @@ int main() {
 	sf::Sprite cardBack; // Cover used if card is flipped down
 	sf::Sprite cardFront; // Used if card is flipped up
 	float stackOffsetY = 25.0f; // When cards are stacked vertically in the lower level
-	float maxStackHeight = cardDimensions.y+7*stackOffsetY; // Shrink cards if stack gets higher
+	float maxStackHeight = cardDimensions.y+8*stackOffsetY; // Compress cards if stack gets higher
 	int suits = 4;
 	bool needShuffle = true; // If the deck has to be shuffled
 
@@ -41,6 +41,10 @@ int main() {
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); // Game window
 
 	// Game elements
+	sf::Text coords = text; // Display this text in upper right corner of window
+	coords.setPosition(wWidth-100, wHeight-30);
+
+	sf::Vector2f mouseCoords; // For storing mouse coordinates
 	std::vector<sf::RectangleShape> cardSlots;
 	std::vector<Card> cards;
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
@@ -88,6 +92,11 @@ int main() {
 				window.close();
 			}
 		}
+
+		// Update mouseCoords and set coords text to be mousecoords
+		mouseCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+		coords.setString(std::to_string(mouseCoords.x).substr(0, 3) + ", "
+					+ std::to_string(mouseCoords.y).substr(0, 3));
 
 		// Game logic and states
 		switch(gameState) {
@@ -197,16 +206,14 @@ int main() {
 					}
 					// Update card position with values converted from mouse position
 					for(int i = 0; i < orderStacks.back().size(); i++) {
-						sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
-						sf::Vector2f mouseCoord = window.mapPixelToCoords(mousePosition);
+						sf::Vector2f mouseCoord = mouseCoords; // Store mousecoord
 						mouseCoord.x = mouseCoord.x-cardDimensions.x/2; // Center the card to mouse
 						mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*stackOffsetY;
 						cards[orderStacks.back()[i]].updatePosition(mouseCoord);
 					}
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse is clicked on deck
 					sf::RectangleShape deck = cardSlots[0];
-					sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-					if(objectPositioner.mouseIsOverObject(deck.getPosition(), mousePos)
+					if(objectPositioner.mouseIsOverObject(deck.getPosition(), mouseCoords)
 								&& orderStacks[0].empty() && orderStacks.back().empty()) {
 						std::cout << "Empty deck clicked" << std::endl;
 						// Move the whole stack 1 to active stack
@@ -227,11 +234,10 @@ int main() {
 							closestStack = 0;
 						} else {
 							for(int i = 1; i < cardSlots.size(); i++) { // Skipping first slot
-								int mx = window.mapPixelToCoords(sf::Mouse::getPosition(window)).x;
-								int	my = window.mapPixelToCoords(sf::Mouse::getPosition(window)).y;
+								sf::Vector2f m = mouseCoords;
 								int	sx = cardSlots[i].getPosition().x+cardDimensions.x/2;
 								int sy = cardSlots[i].getPosition().y+cardDimensions.y/2;
-								float distance = sqrt(pow(mx-sx, 2)+pow(my-sy, 2) * 1.0);
+								float distance = sqrt(pow(m.x-sx, 2)+pow(m.y-sy, 2) * 1.0);
 								if(distance < shortestDistance) {
 									if(i >= 6 || (i < 6 && orderStacks.back().size() == 1)) {
 										if(i == 1 && prevStack == 1 || i > 1) {
@@ -271,10 +277,8 @@ int main() {
 						if(!orderStacks[i].empty()) { // If that stack contains card references
 							for(int a = orderStacks[i].size()-1; a >= 0; a--) {
 								sf::RectangleShape last = cards[orderStacks[i][a]].getDrawable();
-								sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-
 								// If mouse detects a card under it and no card has been detected yet
-								if(objectPositioner.mouseIsOverObject(last.getPosition(), mousePos) &&
+								if(objectPositioner.mouseIsOverObject(last.getPosition(), mouseCoords) &&
 												!cardFound) {
 									cards[orderStacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight
 									highLighted.first = i; // Store the highlighted card's stack's index
@@ -334,6 +338,8 @@ int main() {
 		// Redraw window
 		window.clear(bgColor); // Clear the window
 		// Draw the objects on the window
+		window.draw(coords);
+		// Draw cardslots
 		for(int i = 0; i < cardSlots.size(); i++) {
 			window.draw(cardSlots[i]); // Draw the slots where cards can be placed
 		}
