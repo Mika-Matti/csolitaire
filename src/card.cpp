@@ -16,32 +16,17 @@ Card::Card(sf::Color bg, int n, int s, sf::Vector2f xy, sf::Vector2f dims, sf::T
 	shape.setFillColor(bg);	// Color of card background
 	shape.setOutlineThickness(3); // Outline thickness
 
-	text = t;
-	// Set the number of card //TODO make this a function
-	switch (n) {
-		case 13:
-			text.setString("K");
-			break;
-		case 12:
-			text.setString("Q");
-			break;
-		case 11:
-			text.setString("J");
-			break;
-		default:
-			text.setString(std::to_string(n));
-			break;
-	}
-
+	text = t; // Set text
+  setText(n);	// Set the number of card
 	text.setFillColor((s % 2 == 0) ? sf::Color::Red : sf::Color::Black);
+
 	symbol = sprite; // Set the suit symbol for card
 	updatePosition(xy);	// Set position for all card elements
 }
 
 // Destructor
-Card::~Card() {
-	// std::cout << "Card " << suit << " " << number << " destroyed" << std::endl;
-}
+Card::~Card() { }
+
 // Method declarations
 int Card::getNumber() {
 	return number;
@@ -63,13 +48,33 @@ sf::Sprite Card::getSymbol() {
 	return symbol;
 }
 
+void Card::setText(int n) {
+	switch (n) {
+		case 1:
+			text.setString("A");
+			break;
+		case 13:
+			text.setString("K");
+			break;
+		case 12:
+			text.setString("Q");
+			break;
+		case 11:
+			text.setString("J");
+			break;
+		default:
+			text.setString(std::to_string(n));
+			break;
+	}
+}
+
 void Card::updatePosition(sf::Vector2f pos) {
 	shape.setPosition(pos); // Update card position
 	sf::Vector2f dims = shape.getSize(); // Take the size of the card
 
 	sf::FloatRect textRect = text.getLocalBounds();
 	text.setOrigin(textRect.left + textRect.width/2, textRect.top + textRect.height/2);
-	text.setPosition(pos.x+10+textRect.width/2, pos.y+10+textRect.height/2); // Update number position
+	text.setPosition(pos.x+10+textRect.width/2, pos.y+10+textRect.height/2); // Update numberposition
 
 	sf::FloatRect symbRect = symbol.getLocalBounds();
 	symbol.setOrigin(symbRect.width/2, symbRect.height/2);

@@ -24,6 +24,7 @@ class Card {
 		sf::RectangleShape getDrawable();
 		sf::Text getText();
 		sf::Sprite getSymbol();
+		void setText(int n);
 		void updatePosition(sf::Vector2f pos);
 		void updateOutline(sf::Color c);
 		bool hasOutline(sf::Color c);

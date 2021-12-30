@@ -109,7 +109,6 @@ void ObjectPositioner::compressStack(std::vector<Card> &cards,
 	int flipped = 0; // Store amount of flipped cards while compressing them first
 	float max = (maxStackHeight-cardDimensions.y)/stackOffsetY; // How many cards for maxheight
 	float startY = cards[stack[0]].getDrawable().getPosition().y;
-	float endY = cards[stack.back()].getDrawable().getPosition().y;
 	float flipEndY = startY; // Assume there is no flipped cards
 	float stackHeight = 1.0f; // The proportions of the stack should add up to one
 	float minOffset = 2.0f; // Limit for compression
@@ -131,8 +130,7 @@ void ObjectPositioner::compressStack(std::vector<Card> &cards,
 		}
 	}
 
-	// Update end point and stack height
-	endY = cards[stack.back()].getDrawable().getPosition().y;
+	// Update and stack height
 	stackHeight = flipped/max+(stack.size()-flipped)/max;
 
 	if(stackHeight > 1.0f) { // If the sum of stack proportions exceed maximum of 1
