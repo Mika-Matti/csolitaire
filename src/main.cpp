@@ -39,6 +39,7 @@ int main() {
 	// Initiate window and object positioner
 	ObjectPositioner objectPositioner(bgColor, cardDimensions); // Controls objects on window
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); // Game window
+	window.setVerticalSyncEnabled(true); // Synchronize refresh rate to monitor vertical frequency
 
 	// Game elements
 	sf::Text coords = text; // Display this text in upper right corner of window
@@ -142,6 +143,10 @@ int main() {
 			case 1:
 				// Deal cards from stack 7 to stack 1 where stack n has n(n+n)/2 cards
 				if(stack < 7 && amount <= 7) {
+					if(orderStacks[0].back() == index) { // If the card reference is still in old stack
+						orderStacks[0].pop_back(); // Take top item from initial stack order reference vector
+						orderStacks[6+amount-1].push_back(index); // Place to the new vector
+					}
 					cardPos = cards[index].getDrawable().getPosition();
 					destPos = cardSlots[6+amount-1].getPosition();
 					destPos.y = destPos.y+stack*stackOffsetY; // Vertical stack effect for cards
@@ -149,10 +154,7 @@ int main() {
 					if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
 							objectPositioner.getNextCardPos(offSet, cardPos, destPos);
 							cards[index].updatePosition(cardPos); // Update coords of object;
-					} else { // Move card reference to the new orderStack vector
-						orderStacks[0].pop_back(); // Take top item from initial stack order reference vector
-						orderStacks[6+amount-1].push_back(index); // Place to the new vector
-						// Move onto next card and increase stack size
+					} else { // Move onto next card and increase stack size
 						index--;
 						stack++;
 						if(amount == stack) { // If this slot has had it's cards dealt
