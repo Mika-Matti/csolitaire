@@ -278,27 +278,8 @@ int main() {
 						 	}
 						}
 					}
-					// Card highlight on mouseover
-					bool cardFound = false;
-					for(int i = 0; i < orderStacks.size(); i++) { // For every stack
-						if(!orderStacks[i].empty()) { // If that stack contains card references
-							for(int a = orderStacks[i].size()-1; a >= 0; a--) {
-								sf::RectangleShape last = cards[orderStacks[i][a]].getDrawable();
-								// If mouse detects a card under it and no card has been detected yet
-								if(objectPositioner.mouseIsOverObject(last.getPosition(), mouseCoords) &&
-												!cardFound) {
-									highLighted.first = i; // Store the highlighted card's stack's index
-									highLighted.second = orderStacks[i][a]; // Store the highlighted card index
-									cards[orderStacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight
-									cardFound = true; // Tell program card has been found
-								}	else { // TODO set all colors in game to a vector in start of program
-									if(cards[orderStacks[i][a]].hasOutline(sf::Color::Yellow)) { // If highlighted
-										cards[orderStacks[i][a]].updateOutline(sf::Color::Black);	// Unhighlight
-									}
-								}
-							}
-						}
-					}
+					// If mouse is over an object, highlight it
+					highLightCard(cards, orderStacks, highLighted, objectPositioner, mouseCoords);
 				}
 
 				// Check win conditions
