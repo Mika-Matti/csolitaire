@@ -8,7 +8,6 @@
 #include "gamefunctions.hpp"
 
 // Function definitions
-
 bool areSameColor(sf::Color &a, sf::Color &b) {
 	if(a.r == b.r && a.g == b.g && a.b == b.b) {
 		return true;
@@ -21,15 +20,12 @@ bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<in
 	if(cards[select.second].hasOutline(sf::Color::Yellow) &&
 			(select.first == 0 && cards[select.second].isFlipped() ||
 			select.first > 0 && !cards[select.second].isFlipped())) {
-		std::cout << select.first << " " << select.second << " Select card number: " <<
-		cards[select.second].getNumber() << std::endl;
 		if(select.second != stack.back()) { // If the selected is not the top card
-		// If the stack from selected to last card is descending and color varies on every card
+			// If the stack from selected to last card is descending and color varies on every card
 			int ind = 999;
 			int prevNumber = -1;
 			sf::Color prevCol;
 			for(int i = 0; i < stack.size(); i++) {
-				std::cout << "Current stack[i]: " << stack[i] << std::endl;
 				if(stack[i] == select.second) { // If the select card from stack is found
 					ind = i;
 					prevNumber = cards[stack[i]].getNumber(); // Store the number of the card
@@ -38,8 +34,6 @@ bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<in
 					int thisNumber = cards[stack[i]].getNumber();
 					sf::Color thisCol = cards[stack[i]].getText().getFillColor();
 					if(thisNumber != prevNumber-1 || areSameColor(prevCol, thisCol)) {
-						std::cout << "i: " << i << " thisNumber: " << thisNumber << " prevNumber: " << prevNumber
-						<< " areSameColor: " << areSameColor(prevCol, thisCol) << std::endl;
 						return false;
 					} else {
 						prevNumber = thisNumber;

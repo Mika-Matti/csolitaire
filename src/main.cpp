@@ -31,8 +31,8 @@ int main() {
 	text.setCharacterSize(characterSizeUsed);
 	sf::Sprite cardBack; // Cover used if card is flipped down
 	sf::Sprite cardFront; // Used if card is flipped up
-	float stackOffsetY = 25.0f; // When cards are stacked vertically in the lower level
-	float maxStackHeight = cardDimensions.y+8*stackOffsetY; // Compress cards if stack gets higher
+	float stackOffsetY = 30.0f; // When cards are stacked vertically in the lower level
+	float maxStackHeight = cardDimensions.y+7*stackOffsetY; // Compress cards if stack gets higher
 	int suits = 4;
 	bool needShuffle = true; // If the deck has to be shuffled
 
@@ -50,6 +50,7 @@ int main() {
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	bool animating = false; // Control animating card movement during gameplay
 	bool gameWon = false; // Flagged true if win conditions are all checked true
+	bool stackChanged = false; // Call the compression function if this is true
 	int gameState = 0; // Used to control the phases of the game
 	int index = 0; // Used to select card for animating movement in game
 	int stack = 0; // Also used to find final position for card in movement
@@ -180,13 +181,15 @@ int main() {
 									cards[orderStacks[i].back()].setFlipped(false); // Unflip the card
 							}
 							// Check if stack height needs to be compressed or can be decompressed
-							if(orderStacks.back().empty() && !animating && i > 5 && orderStacks[i].size() > 1) {
+							if(orderStacks.back().empty() && !animating && i > 5 && orderStacks[i].size() > 1
+										&& stackChanged) {
 								objectPositioner.compressStack(cards, orderStacks[i],
 											maxStackHeight, stackOffsetY);
 							}
 						}
 					}
 				}
+				stackChanged = false; // Stack changes have been processed
 
 				// If mouse left button is pressed and game allows the move
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) &&
@@ -254,6 +257,7 @@ int main() {
 						animating = true; // Begin animation of selected cards moving to closest stack
 					}
 					if(animating) { // Animate card closing to their destination position
+						stackChanged = true; // A change is happening in the stacks
 						cardPos = cards[orderStacks.back()[0]].getDrawable().getPosition();
 						destPos = cardSlots[closestStack].getPosition(); // Destination for cards
 						if(closestStack > 5) {
@@ -281,9 +285,9 @@ int main() {
 								// If mouse detects a card under it and no card has been detected yet
 								if(objectPositioner.mouseIsOverObject(last.getPosition(), mouseCoords) &&
 												!cardFound) {
-									cards[orderStacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight
 									highLighted.first = i; // Store the highlighted card's stack's index
 									highLighted.second = orderStacks[i][a]; // Store the highlighted card index
+									cards[orderStacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight
 									cardFound = true; // Tell program card has been found
 								}	else { // TODO set all colors in game to a vector in start of program
 									if(cards[orderStacks[i][a]].hasOutline(sf::Color::Yellow)) { // If highlighted

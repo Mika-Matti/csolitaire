@@ -86,73 +86,92 @@ bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f mouse
 	return false;
 }
 
+/**
+ * This algorithm will take the indexes of the current stack and
+ * check their length in full size in the form of equation
+ * a/max + b/max = 1 Where a is the amount of flipped and b is
+ * the amount of unflipped cards. If the value exceeds 1, the
+ * algorithm will first calculate a compression value x for
+ * flipped cards that can compress the maximum offset to 
+ * any smaller size with minimum size of 2. Value x is used
+ * to divide value a to find the new offset for flipped cards.
+ *
+ * The algorithm then checks if (a/x)/max + b/max = 1. If the
+ * value is more than 1 and the value a/x is at minimum of 2,
+ * The algorithm will then calculate the new compression value y
+ * for unflipped cards with the same minimum size, resulting in
+ * the equation (a/x)/max + (b/y)/max = 1.
+ */
 void ObjectPositioner::compressStack(std::vector<Card> &cards,
 			std::vector<int> &stack, float &maxStackHeight, float &stackOffsetY) {
 
+	int highLight = stack.size()-1; // Assume highlight is just last card
 	int flipped = 0; // Store amount of flipped cards while compressing them first
+	float max = (maxStackHeight-cardDimensions.y)/stackOffsetY; // How many cards for maxheight
 	float startY = cards[stack[0]].getDrawable().getPosition().y;
 	float endY = cards[stack.back()].getDrawable().getPosition().y;
-	float flipEndY = startY;
-	float stackHeight = endY+cardDimensions.y-startY;
-	float oldOffset = cards[stack[1]].getDrawable().getPosition().y-startY; // Initial old offset
-	float flippedOffset = 0.0f;
-	float newOffset = (maxStackHeight-cardDimensions.y)/stack.size(); // Default
-	float minOffset = 2.0f;
-	bool compressFlipped = false; // Initial assumption is there are no flipped cards
+	float flipEndY = startY; // Assume there is no flipped cards
+	float stackHeight = 1.0f; // The proportions of the stack should add up to one
+	float minOffset = 2.0f; // Limit for compression
+	float flippedOffset = 1.0f; // Used for compressing flipped cards
+	float newOffset = stackOffsetY; // Compress open cards
+	bool highLighted = false; // If a card is highlighted, uncompress every card after that
+	sf::Vector2f curPos; // Used to store current position of a card
 
-	// Find the amount of flipped cards
-	for(int i = 0; i < stack.size(); i++)
-		if(cards[stack[i]].isFlipped())
+	// Straighten the stack first and find any flipped cards and if there is a highlighted card
+	for(int i = 0; i < stack.size(); i++) { // For every card in the stack
+		curPos = cards[stack[i]].getDrawable().getPosition(); // Get the card position
+		curPos.y = startY+i*stackOffsetY; // Revert to maximum stacksize and offset
+		cards[stack[i]].updatePosition(curPos); // Update the card position
+		if(cards[stack[i]].isFlipped()) { // If the card is flipped down
 			flipped++;
-
-	if(flipped > 1) { // If stack contains more than just 1 flipped cards
-		flippedOffset = (maxStackHeight-cardDimensions.y-stackOffsetY*(stack.size()-flipped))/flipped;
-		flipEndY = cards[stack[flipped-1]].getDrawable().getPosition().y+flippedOffset;
-		// Find new offset
-		if(flippedOffset > minOffset) { // If flipped part of stack has greater offset than minimum
-			compressFlipped = true; // Flipped can be compressed further
-			newOffset = flippedOffset;
-		} else {
-			compressFlipped = false; // Must compress the nonflipped cards instead to make room
-			if(stack.size() > flipped+1) { // If there are more than 1 unflipped card
-				float next = cards[stack[flipped+1]].getDrawable().getPosition().y;
-				oldOffset = next-cards[stack[flipped]].getDrawable().getPosition().y;
-			} else {
-				oldOffset = stackOffsetY; // Otherwise it can just be default
-			}
-			newOffset = (maxStackHeight-cardDimensions.y-(flipEndY-startY))/(stack.size()-flipped);
+		} else if (cards[stack[i]].hasOutline(sf::Color::Yellow)) { // If the card is highlighted
+			highLighted = true; // Let program know there is a highlighted card
+			highLight = i; // Index of highlight in stack
 		}
 	}
 
-	if(newOffset < minOffset)
-		newOffset = minOffset;
-	else if (newOffset > stackOffsetY)
-		newOffset = stackOffsetY;
+	// Update end point and stack height
+	endY = cards[stack.back()].getDrawable().getPosition().y;
+	stackHeight = flipped/max+(stack.size()-flipped)/max;
 
-	// If either stack is taller than allowed stack height or shorter and offset could be greater
-	if((stackHeight-maxStackHeight >= 0.0f) ||
-				(maxStackHeight > stackHeight && (newOffset-oldOffset) > 0.01f)) {
-		std::cout << newOffset << " old: " << oldOffset <<
-						" maxStackY: " << maxStackHeight << " stackY: " << stackHeight << std::endl;
-
-		// Start compressing unflipped or unflipped cards
-		for(int i = 1; i < stack.size(); i++) { // For all cards that are not the base card
-			bool isFlipped = cards[stack[i]].isFlipped();
-	 		sf::Vector2f curPos = cards[stack[i]].getDrawable().getPosition();
-	 		if(isFlipped && compressFlipped) {  // If flipped are being compressed
-				curPos.y = startY+i*newOffset; // Compress flipped cards from start
-			} else if (compressFlipped && !isFlipped) {
-	 			// Move these cards up with the compressed flipped car
-				flipEndY = cards[stack[flipped-1]].getDrawable().getPosition().y+flippedOffset;
-				curPos.y = flipEndY+(i-flipped)*stackOffsetY;
-			} else if (!compressFlipped && !isFlipped) { // If unflipped are being compressed
-				if(flipped == 1) {
-					curPos.y = flipEndY+(i)*newOffset;
-				} else {
-					curPos.y = flipEndY+(i-flipped)*newOffset; // Start from the end of flipped part
-				}
+	if(stackHeight > 1.0f) { // If the sum of stack proportions exceed maximum of 1
+		// First compress flipped cards
+		if(flipped > 0) { // If there are flipped cards
+			float a = flipped, b = (stack.size()-flipped);
+			float x = a/(max-b); // Formula for x is derived from (a/x)/max + b/max=1
+			flippedOffset = stackOffsetY/x; // Where dividing with x gives the new offset
+			if(flippedOffset < minOffset) { // In case the offset is smaller than minimum allowed
+				flippedOffset = minOffset; // Replace it with minimum
 			}
+			for(int i = 0; i < flipped; i++) { // For every flipped card
+				curPos = cards[stack[i]].getDrawable().getPosition(); // Get the card position
+				curPos.y = startY+i*flippedOffset; // Update position with new offset
+				cards[stack[i]].updatePosition(curPos); // Update card position
+			}
+			// Update the stored endpoint of flipped cards that is used to place unflipped cards
+			flipEndY = curPos.y+flippedOffset;
+			stackHeight = flippedOffset/max+b/max; // Update stack height
+		}
+		// Then check for unflipped cards
+		if(stackHeight > 1.0f && flippedOffset <= minOffset) { // If the sum of proportions exceed 1
+			std::cout << stackHeight << std::endl;
+			// Calculate new offset for unflipped cards
+			float ax = flippedOffset, b = (stack.size()-flipped);
+			float y = b/(max-ax); // Formula for y is derived from (a/x)/max + (b/y)/max = 1
+			newOffset = stackOffsetY/y; // Where dividing with y gives the new offset
+			if(newOffset < minOffset) { // In case the offset is smaller than minimum allowed
+				newOffset = minOffset; // Replace it with minimum
+			}
+		}
+
+		// Move the unflipped cards up and compress them if needed
+		for(int i = flipped; i < stack.size(); i++) { // For every unflipped card
+			curPos = cards[stack[i]].getDrawable().getPosition();
+		 	curPos.y = flipEndY+(i-flipped)*newOffset;
 			cards[stack[i]].updatePosition(curPos);
-	 	}
+		}
+	} else { // Otherwise the stack height needs no adjustments
+		return; // Exit function
 	}
 }
