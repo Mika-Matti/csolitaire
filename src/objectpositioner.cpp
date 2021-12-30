@@ -23,13 +23,21 @@ void ObjectPositioner::positionCardSlots(std::string f) {
 	std::ifstream slotPositions(f); // Holds card slot positions (x,y)
 	int x, y; // Store current positions of the card
 	while (slotPositions >> x >> y) { // Read positions for card slots from file
-		sf::RectangleShape cardSlot(cardDimensions); // Card slot with shape
-		cardSlot.setOutlineColor(sf::Color::Red); // Cardslot outline color TODO change to parameter
-		cardSlot.setFillColor(sf::Color::Transparent); // Cardslot has no filled color
-		cardSlot.setOutlineThickness(5); // Outline thickness
-		cardSlot.setPosition(x, y); // Set position
+		// Card slot with shape
+		sf::RectangleShape cardSlot = createRectangle(cardDimensions, sf::Vector2f(x, y),
+					sf::Color::Red, sf::Color::Transparent, 5);
 		cardSlots.push_back(cardSlot); // Add to the vector that will be drawn in mainloop
 	}
+}
+
+sf::RectangleShape ObjectPositioner::createRectangle(sf::Vector2f dims, sf::Vector2f pos,
+			sf::Color outLine, sf::Color fill, int edgeSize) {
+	sf::RectangleShape object(dims); // Create shape with dimensions
+	object.setOutlineColor(outLine); // Set outline color for the card
+	object.setFillColor(fill); // Set background color for the shape
+	object.setOutlineThickness(edgeSize); // Set outline thickness
+	object.setPosition(pos); // Set position
+	return object;
 }
 
 std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t, const std::vector<sf::Texture>& texs) {
@@ -81,10 +89,11 @@ void ObjectPositioner::getNextCardPos(float &offSet, sf::Vector2f &cardPos, sf::
 	}
 }
 
-bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f mouse) {
+bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f size,
+			sf::Vector2f mouse) {
 	// If mouse x is within card's x boundaries
-	if(mouse.x > object.x && mouse.x < object.x+cardDimensions.x) {
-		if(mouse.y > object.y && mouse.y < object.y+cardDimensions.y) {
+	if(mouse.x > object.x && mouse.x < object.x+size.x) {
+		if(mouse.y > object.y && mouse.y < object.y+size.y) {
 			return true;
 		}
 	}
@@ -108,11 +117,10 @@ bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f mouse
  * the equation (a/x)/max + (b/y)/max = 1.
  */
 void ObjectPositioner::compressStack(std::vector<Card> &cards,
-			std::vector<int> &stack, float &maxStackHeight, float &stackOffsetY) {
+			std::vector<int> &stack, float &max, float &stackOffsetY) {
 
 	int highLight = stack.size()-1; // Assume highlight is just last card
 	int flipped = 0; // Store amount of flipped cards while compressing them first
-	float max = (maxStackHeight-cardDimensions.y)/stackOffsetY; // How many cards for maxheight
 	float startY = cards[stack[0]].getDrawable().getPosition().y;
 	float flipEndY = startY; // Assume there is no flipped cards
 	float stackHeight = 1.0f; // The proportions of the stack should add up to one

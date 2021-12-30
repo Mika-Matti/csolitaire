@@ -5,7 +5,8 @@
 #include <vector>
 #include <utility>
 
-bool areSameColor(sf::Color &a, sf::Color &b);
+bool areSameColor(sf::Color a, sf::Color b);
+void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords);
 void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
 			std::pair<int, int> &select, ObjectPositioner &op, sf::Vector2f &mouseCoords);
 bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<int, int> &select);

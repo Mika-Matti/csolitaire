@@ -9,11 +9,22 @@
 #include "gamefunctions.hpp"
 
 // Function definitions
-bool areSameColor(sf::Color &a, sf::Color &b) {
+bool areSameColor(sf::Color a, sf::Color b) {
 	if(a.r == b.r && a.g == b.g && a.b == b.b) {
 		return true;
 	}
 	return false;
+}
+
+void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords) {
+	sf::FloatRect bounds = text.getLocalBounds();
+	sf::Vector2f size = sf::Vector2f(bounds.left+bounds.width, bounds.top+bounds.height);
+
+	if(op.mouseIsOverObject(text.getPosition(), size, mouseCoords)) {
+		text.setFillColor(sf::Color::Yellow);
+	}	else {
+		text.setFillColor(sf::Color::White);
+	}
 }
 
 void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
@@ -24,7 +35,7 @@ void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stac
 			for(int a = stacks[i].size()-1; a >= 0; a--) {
 				sf::RectangleShape last = cards[stacks[i][a]].getDrawable();
 				// If mouse detects a card under it and no card has been detected yet
-				if(op.mouseIsOverObject(last.getPosition(), mouseCoords) &&	!cardFound) {
+				if(op.mouseIsOverObject(last.getPosition(), last.getSize(), mouseCoords) &&	!cardFound) {
 					select.first = i; // Store the highlighted card's stack's index
 					select.second = stacks[i][a]; // Store the highlighted card index
 					cards[stacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight card

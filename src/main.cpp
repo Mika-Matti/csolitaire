@@ -29,10 +29,9 @@ int main() {
 	sf::Color cardColor = sf::Color::White; // Card background color
 	sf::Text text("VALUE", font); // Initial text for cards
 	text.setCharacterSize(characterSizeUsed);
-	sf::Sprite cardBack; // Cover used if card is flipped down
-	sf::Sprite cardFront; // Used if card is flipped up
+	sf::Sprite cardBack, cardFront; // Depending on drawn side, either sprite is drawn for card
 	float stackOffsetY = 30.0f; // When cards are stacked vertically in the lower level
-	float maxStackHeight = cardDimensions.y+7*stackOffsetY; // Compress cards if stack gets higher
+	float maxStackHeight = 7; // Compress cards if stack gets higher
 	int suits = 4;
 	bool needShuffle = true; // If the deck has to be shuffled
 
@@ -45,11 +44,17 @@ int main() {
 	sf::Text coords = text; // Display this text in upper right corner of window
 	coords.setPosition(wWidth-100, wHeight-30);
 
+	// Create button for starting a new game
+	sf::Text newGameText = text; // Text element for newGameBtn
+	newGameText.setPosition(wWidth-105, 10);
+	newGameText.setString("NEW GAME");
+
 	sf::Vector2f mouseCoords; // For storing mouse coordinates
 	std::vector<sf::RectangleShape> cardSlots;
 	std::vector<Card> cards;
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	bool animating = false; // Control animating card movement during gameplay
+	bool newGame = false; // Flagged true if new game button is pressed
 	bool gameWon = false; // Flagged true if win conditions are all checked true
 	bool stackChanged = false; // Call the compression function if this is true
 	int gameState = 0; // Used to control the phases of the game
@@ -217,9 +222,12 @@ int main() {
 						mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*stackOffsetY;
 						cards[orderStacks.back()[i]].updatePosition(mouseCoord);
 					}
+				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !newGame &&
+								areSameColor(newGameText.getFillColor(), sf::Color::Yellow)) { // New game clicked
+					newGame = true;
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse is clicked on deck
 					sf::RectangleShape deck = cardSlots[0];
-					if(objectPositioner.mouseIsOverObject(deck.getPosition(), mouseCoords)
+					if(objectPositioner.mouseIsOverObject(deck.getPosition(), deck.getSize(), mouseCoords)
 								&& orderStacks[0].empty() && orderStacks.back().empty()) {
 						std::cout << "Empty deck clicked" << std::endl;
 						// Move the whole stack 1 to active stack
@@ -279,6 +287,7 @@ int main() {
 						}
 					}
 					// If mouse is over an object, highlight it
+					highLightText(newGameText, objectPositioner, mouseCoords);
 					highLightCard(cards, orderStacks, highLighted, objectPositioner, mouseCoords);
 				}
 
@@ -304,6 +313,17 @@ int main() {
 					}
 				} // End checking win conditions
 
+				// Check if new game was initiated
+				if(newGame) {
+					std::cout << "New game started" << std::endl;
+					newGame = false; // Unflag the newGame variable
+					needShuffle = true;
+					index = 0;
+					stack = 0;
+					amount = 1;
+					gameState = 0; // Reset game
+				}
+
 				if (gameWon) { // If all conditions for winning were met
 					std::cout << "Winner is you." << std::endl;
 					needShuffle = true;
@@ -327,6 +347,8 @@ int main() {
 		window.clear(bgColor); // Clear the window
 		// Draw the objects on the window
 		window.draw(coords);
+		window.draw(newGameText);
+
 		// Draw cardslots
 		for(int i = 0; i < cardSlots.size(); i++) {
 			window.draw(cardSlots[i]); // Draw the slots where cards can be placed
