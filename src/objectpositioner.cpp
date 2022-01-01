@@ -1,11 +1,5 @@
 // Copyright 2021 Mika-Matti Auerkallio
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
-#include <SFML/Graphics.hpp>
-#include "card.hpp"
 #include "objectpositioner.hpp"
 
 // Constructor
@@ -77,16 +71,30 @@ float ObjectPositioner::adjustPositioningSpeed(const float& a, const float& b) {
 	return speed;	// Return the optimal positioning speed
 }
 
-void ObjectPositioner::getNextCardPos(float &offSet, sf::Vector2f &cardPos, sf::Vector2f &destPos) {
+void ObjectPositioner::getNextCardPos(sf::Vector2f &cardPos, sf::Vector2f &destPos) {
+	float speed = 0.0f; // Speed will determine how much the card moves in this frame
 	if(std::abs(cardPos.x-destPos.x) >= 0.01f) {
-		offSet = adjustPositioningSpeed(cardPos.x, destPos.x); // Get animation speed
-		cardPos.x = cardPos.x+offSet; // Move horizontally towards destination
+		speed = adjustPositioningSpeed(cardPos.x, destPos.x); // Get animation speed
+		cardPos.x = cardPos.x+speed; // Move horizontally towards destination
 	}
 
 	if(std::abs(cardPos.y-destPos.y) > 0.01f) {
-		offSet = adjustPositioningSpeed(cardPos.y, destPos.y);
-		cardPos.y = cardPos.y+offSet; // Move vertically towards destination
+		speed = adjustPositioningSpeed(cardPos.y, destPos.y);
+		cardPos.y = cardPos.y+speed; // Move vertically towards destination
 	}
+}
+
+bool ObjectPositioner::moveCard(Card &card, sf::Vector2f destPos,	sf::Vector2f offSet, int stack) {
+	sf::Vector2f cardPos = card.getDrawable().getPosition();
+	destPos.x = destPos.x+stack*offSet.x; // This helps to visualize a stack
+	destPos.y = destPos.y+stack*offSet.y; // and to help game logic to see order of cards
+
+	if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
+		getNextCardPos(cardPos, destPos); // How much card will move
+		card.updatePosition(cardPos); // Update coords of object
+		return true; // Card was moved successfully
+	}
+	return false; // Card could not be moved any more
 }
 
 bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f size,

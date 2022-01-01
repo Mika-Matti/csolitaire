@@ -1,11 +1,5 @@
 // Copyright 2021 Mika-Matti Auerkallio
 
-#include <iostream>
-#include <vector>
-#include <utility>
-#include "SFML/Graphics.hpp"
-#include "card.hpp"
-#include "objectpositioner.hpp"
 #include "gamefunctions.hpp"
 
 // Function definitions
@@ -14,6 +8,36 @@ bool areSameColor(sf::Color a, sf::Color b) {
 		return true;
 	}
 	return false;
+}
+
+void popFromAndPushTo(std::vector<int> &a, std::vector<int> &b, int &x) {
+	if(a.back() == x) { // If the top item x is still in old vector a
+		a.pop_back(); // Remove the top item x from the old vector a
+		b.push_back(x); // Push to the new vector b
+	}
+}
+
+void resetDrawOrder(std::vector<std::vector<int>> &stacks, std::vector<Card> &cards) {
+	// Make sure every stack in orderStacks is empty
+	for(int i = 0; i < stacks.size(); i++) { // For every stack
+		if(!stacks[i].empty()) // If that stack is not empty
+			stacks[i].clear(); // Clear it
+	}
+	// Update drawing order
+	for(int i = 0; i < cards.size(); i++) {
+		if(!cards[i].isFlipped()) // If this card is not flipped
+			cards[i].setFlipped(true); // Flip the card to face downside
+		stacks[0].push_back(i); // Set initial drawing order where order i has card i
+	}
+}
+
+std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &window) {
+	std::string coords = "";
+	mouseCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+	std::string x = std::to_string(mouseCoords.x);
+	std::string y = std::to_string(mouseCoords.y);
+	coords = y.substr(0, x.find(".")) + ", "	+ y.substr(0, x.find("."));
+	return coords;
 }
 
 void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords) {

@@ -1,9 +1,14 @@
 // Copyright 2021 Mika-Matti Auerkallio
 
-#ifndef SRC_OBJECTPOSITIONER_HPP_
-#define SRC_OBJECTPOSITIONER_HPP_
+#include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
+#include "SFML/Graphics.hpp"
+#include "card.hpp"
+
+#ifndef SRC_OBJECTPOSITIONER_HPP_
+#define SRC_OBJECTPOSITIONER_HPP_
 
 class Card; // Forward declaration of Card class
 
@@ -24,7 +29,8 @@ class ObjectPositioner {
 		std::vector<Card> createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t,
 						const std::vector<sf::Texture>& texs);
 		float adjustPositioningSpeed(const float& a, const float& b);
-		void getNextCardPos(float &offSet, sf::Vector2f &cardPos, sf::Vector2f &destPos);
+		void getNextCardPos(sf::Vector2f &cardPos, sf::Vector2f &destPos);
+		bool moveCard(Card &card, sf::Vector2f destPos, sf::Vector2f offSet, int stack);
 		bool mouseIsOverObject(sf::Vector2f object, sf::Vector2f size, sf::Vector2f mouse);
 		void compressStack(std::vector<Card> &cards, std::vector<int> &stack,
 						float &max, float &stackOffsetY);
