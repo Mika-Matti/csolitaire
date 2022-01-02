@@ -2,6 +2,10 @@
 
 #ifndef SRC_CARD_HPP_
 #define SRC_CARD_HPP_
+
+#include <iostream>
+#include <SFML/Graphics.hpp>
+
 class Card {
 	private:
 		sf::Color bgColor;

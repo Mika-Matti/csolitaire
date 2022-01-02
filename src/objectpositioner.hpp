@@ -1,14 +1,14 @@
 // Copyright 2021 Mika-Matti Auerkallio
 
+#ifndef SRC_OBJECTPOSITIONER_HPP_
+#define SRC_OBJECTPOSITIONER_HPP_
+
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
 #include "SFML/Graphics.hpp"
 #include "card.hpp"
-
-#ifndef SRC_OBJECTPOSITIONER_HPP_
-#define SRC_OBJECTPOSITIONER_HPP_
 
 class Card; // Forward declaration of Card class
 

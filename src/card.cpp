@@ -1,7 +1,5 @@
 // Copyright 2021 Mika-Matti Auerkallio
 
-#include <iostream>
-#include <SFML/Graphics.hpp>
 #include "card.hpp"
 
 // Constructor
