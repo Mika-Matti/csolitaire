@@ -265,28 +265,6 @@ int main() {
 					}
 				}
 
-				// Check win conditions
-				gameWon = true; // Flag game to be won, and then go through win conditions
-				for(int i = 2; i < 6; i++) { // For every slot in upper right area of window
-					if(orderStacks[i].size() != 13) { // If stack is not the complete size
-						gameWon = false;
-						break; // Stop going through cards
-					}
-					int cSuit = 0; // This is used to check that the stack only has same suit cards
-					for(int a = 0; a < orderStacks[i].size(); a++) { // For every card in the stack
-						if(a == 0) // If we are at the first card of the stack
-							cSuit = cards[orderStacks[i][a]].getSuit(); // Set the suit of the stack
-						if(cards[orderStacks[i][a]].getSuit() != cSuit) { // If card don't have right suit
-							gameWon = false;
-							break;
-						}
-						if(cards[orderStacks[i][a]].getNumber() != a+1) { // If card number is not a+1
-							gameWon = false;
-							break;
-						}
-					}
-				} // End checking win conditions
-
 				// Check if new game was initiated
 				if(newGameConfirm) {
 					std::cout << "New game started" << std::endl;
@@ -294,8 +272,8 @@ int main() {
 					needShuffle = true;
 					gameState = 0; // Reset game
 				}
-
-				if (gameWon) { // If all conditions for winning were met
+				// Check for win conditions
+				if (haveWinConditions(cards, orderStacks)) { // If all conditions for winning were met
 					std::cout << "Winner is you." << std::endl;
 					needShuffle = true;
 					gameState++;

@@ -22,5 +22,6 @@ void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoor
 void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
 			std::pair<int, int> &select, ObjectPositioner &op, sf::Vector2f &mouseCoords);
 bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<int, int> &select);
+bool haveWinConditions(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks);
 
 #endif // SRC_GAMEFUNCTIONS_HPP_

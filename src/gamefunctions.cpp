@@ -128,3 +128,20 @@ bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<in
 	}
 	return false;
 }
+
+bool haveWinConditions(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks) {
+	for(int i = 2; i < 6; i++) { // For every slot in upper right area of window
+		if(stacks[i].size() != 13) // If stack is not the complete size
+			return false; // Stop going through cards
+		int cSuit = 0; // This is used to check that the stack only has same suit cards
+		for(int a = 0; a < stacks[i].size(); a++) { // For every card in the stack
+			if(a == 0) // If we are at the first card of the stack
+				cSuit = cards[stacks[i][a]].getSuit(); // Set the suit of the stack
+			if(cards[stacks[i][a]].getSuit() != cSuit) // If card don't have right suit
+				return false;
+			if(cards[stacks[i][a]].getNumber() != a+1) // If card number is not a+1
+				return false;
+		}
+	} // End checking win conditions
+	return true;
+}
