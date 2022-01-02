@@ -36,7 +36,7 @@ std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &windo
 	mouseCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 	std::string x = std::to_string(mouseCoords.x);
 	std::string y = std::to_string(mouseCoords.y);
-	coords = y.substr(0, x.find(".")) + ", "	+ y.substr(0, x.find("."));
+	coords = x.substr(0, x.find(".")) + ", "	+ y.substr(0, y.find("."));
 	return coords;
 }
 

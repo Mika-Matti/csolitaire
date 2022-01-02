@@ -205,11 +205,11 @@ int main() {
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && newGame) {
 					if(areSameColor(newGamePopup.getTexts()[0].getFillColor(), sf::Color::Yellow)) {
 						newGameConfirm = true; // Confirm start new game
+						newGame = false;
 					} else if (areSameColor(newGamePopup.getTexts().back().getFillColor(),
 									sf::Color::Yellow)) { // If clicked return
-						newGameConfirm = false;
+						newGame = false;
 					}
-					newGame = false;
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !newGame) { // If deck is clicked
 					sf::RectangleShape deck = cardSlots[0];
 					if(objectPositioner.mouseIsOverObject(deck.getPosition(), deck.getSize(), mouseCoords)
