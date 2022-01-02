@@ -17,6 +17,29 @@ void popFromAndPushTo(std::vector<int> &a, std::vector<int> &b, int &x) {
 	}
 }
 
+void updateStacks(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+			ObjectPositioner &op, float &maxStackHeight, float &stackOffsetY) {
+
+	for(int i = 0; i < stacks.size(); i++) { // For every stack
+		if (!stacks[i].empty()) { // If the stack has cards
+			if (i == 0) { // If the stack is deck
+				for (int a = 0; a < stacks[i].size(); a++) // For every card in deck
+					if (!cards[stacks[i][a]].isFlipped()) // If the card isn't flipped
+						cards[stacks[i][a]].setFlipped(true); // Flip the card
+			} else { // If the stack is any other stack
+				if (cards[stacks[i].back()].isFlipped()) { // If the top card is flipped
+					if(stacks.back().empty()) // If there are no cards currently active
+						cards[stacks[i].back()].setFlipped(false); // Unflip the card
+				}
+				// Check if stack height needs to be compressed or can be decompressed
+				if(stacks.back().empty() && i > 5 && stacks[i].size() > 1) {
+					op.compressStack(cards, stacks[i],	maxStackHeight, stackOffsetY);
+				}
+			}
+		}
+	}
+}
+
 void resetDrawOrder(std::vector<std::vector<int>> &stacks, std::vector<Card> &cards) {
 	// Make sure every stack in orderStacks is empty
 	for(int i = 0; i < stacks.size(); i++) { // For every stack

@@ -14,6 +14,8 @@
 // Function declarations
 bool areSameColor(sf::Color a, sf::Color b);
 void popFromAndPushTo(std::vector<int> &a, std::vector<int> &b, int &x);
+void updateStacks(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+			ObjectPositioner &op, float &maxStackHeight, float &stackOffsetY);
 void resetDrawOrder(std::vector<std::vector<int>> &stacks, std::vector<Card> &cards);
 std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &window);
 void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords);

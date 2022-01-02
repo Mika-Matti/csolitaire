@@ -154,27 +154,10 @@ int main() {
 			case 2: // The gameplay state and mouse events
 				// Check for cards that can be flipped or for stacks that need vertical compression
 				if(stackChanged && !animating) {
-					for(int i = 0; i < orderStacks.size(); i++) { // For every stack
-						if (!orderStacks[i].empty()) { // If the stack has cards
-							if (i == 0) { // If the stack is deck
-								for (int a = 0; a < orderStacks[i].size(); a++) // For every card in deck
-							 		if (!cards[orderStacks[i][a]].isFlipped()) // If the card isn't flipped
-					 					cards[orderStacks[i][a]].setFlipped(true); // Flip the card
-							} else { // If the stack is any other stack
-								if (cards[orderStacks[i].back()].isFlipped()) { // If the top card is flipped
-									if(orderStacks.back().empty()) // If there are no cards currently active
-										cards[orderStacks[i].back()].setFlipped(false); // Unflip the card
-							}
-							// Check if stack height needs to be compressed or can be decompressed
-								if(orderStacks.back().empty() && i > 5 && orderStacks[i].size() > 1) {
-									objectPositioner.compressStack(cards, orderStacks[i],
-												maxStackHeight, stackOffsetY);
-								}
-							}
-						}
-					}
+					updateStacks(cards, orderStacks, objectPositioner, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
 				}
+				// Game controls
 				// If mouse left button is pressed and game allows the move
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && !newGame &&
 							moveIsLegal(cards, orderStacks[highLighted.first], highLighted)) {
