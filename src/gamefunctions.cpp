@@ -173,12 +173,12 @@ int findClosestStack(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 						if(stacks[i].empty() && (cNum == 1 && i < 6 || cNum == 13 && i >= 6)) {
 							closestStack = i; // Then only ace or king is allowed
 							shortestDistance = distance;
-						} else if (!stacks[i].empty()) { // If stack is not empty then depending on the game rules
+						} else if (!stacks[i].empty()) { // If stack is not empty then depending on game rules
 							int dNum = cards[stacks[i].back()].getNumber();
 							int dSuit = cards[stacks[i].back()].getSuit();
 							sf::Color dCol = cards[stacks[i].back()].getText().getFillColor();
 							if((cNum == dNum+1 && cSuit == dSuit && i < 6) ||
-										(cNum == dNum-1) && !areSameColor(cCol, dCol)) {
+										(cNum == dNum-1) && !areSameColor(cCol, dCol) && i >= 6) {
 								closestStack = i; // Allow ascending same suit cards to top level
 								shortestDistance = distance;
 							}
