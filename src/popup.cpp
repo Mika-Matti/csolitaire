@@ -25,6 +25,25 @@ Popup::Popup(sf::RectangleShape s, sf::Text t) { // Constructor
 Popup::~Popup() { } // Deconstructor
 
 // Method declarations
+
+bool Popup::clickedButton(int ind) {
+	sf::Color color = texts[ind].getFillColor();
+	if(color.r == sf::Color::Yellow.r && color.g == sf::Color::Yellow.g &&
+				color.b == sf::Color::Yellow.b) {
+		texts[ind].setFillColor(sf::Color::White);  // Unhighlight the button
+		return true;
+	}
+	return false;
+}
+
+void Popup::setVisibility(bool t) {
+	visible = t;
+}
+
+bool Popup::getVisibility() {
+	return visible;
+}
+
 sf::RectangleShape Popup::getShape() {
 	return shape;
 }

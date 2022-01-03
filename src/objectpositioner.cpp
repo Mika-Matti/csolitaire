@@ -108,6 +108,32 @@ bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f size,
 	return false;
 }
 
+void ObjectPositioner::pickUpStack(std::vector<Card> &cards,
+			std::vector<std::vector<int>> &stacks, std::pair<int, int> &select,
+			int &prevStack, sf::Vector2f &mouseCoords, float &stackOffsetY) {
+	// Move all cards on top of highlighted card to the last stack
+	if (select.first != stacks.size()-1) { // If card/cards are in old stack
+		int i = 0; // Iterator to find selected card's position in stack
+		while(stacks[select.first][i] != select.second) {
+			i++; // Skip cards till the selected card is found
+		}
+		while(i < stacks[select.first].size()) { // Move all after card i
+			stacks.back().push_back(stacks[select.first][i]); // To this stack
+			stacks[select.first].erase(stacks[select.first].begin()+i);
+			// And remove card from it's old stack
+		}
+		prevStack = select.first; // Store old stack index
+		select.first = stacks.size()-1; // Update highlight stack index
+	}
+	// Update card position with values converted from mouse position
+	for(int i = 0; i < stacks.back().size(); i++) {
+		sf::Vector2f mouseCoord = mouseCoords; // Store mousecoord
+		mouseCoord.x = mouseCoord.x-cardDimensions.x/2; // Center the card to mouse
+		mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*stackOffsetY;
+		cards[stacks.back()[i]].updatePosition(mouseCoord);
+	}
+}
+
 /**
  * This algorithm will take the indexes of the current stack and
  * check their length in full size in the form of equation

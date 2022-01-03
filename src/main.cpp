@@ -1,7 +1,6 @@
 // Copyright 2021 Mika-Matti Auerkallio
 
 #include <iostream>
-#include <map>
 #include <string>
 #include <cmath>
 #include <algorithm>
@@ -61,9 +60,7 @@ int main() {
 	std::vector<Card> cards;
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	bool animating = false; // Control animating card movement during gameplay
-	bool newGame = false; // Flagged true if new game button is pressed
 	bool newGameConfirm = false; // Flagged true if new game is confirmed from popup window
-	bool gameWon = false; // Flagged true if win conditions are all checked true
 	bool stackChanged = false; // Call the compression function if this is true
 	int gameState = 0; // Used to control the phases of the game
 	int index = 0; // Used to select card for animating movement in game
@@ -74,7 +71,6 @@ int main() {
 	std::pair <int, int> highLighted(0, 0); // Points to a stack and card that is highlighted
 	sf::Vector2f cardPos(20.0f, 20.0f); // Used to track one card position
 	sf::Vector2f destPos(20.0f, 20.0f);	// Used to track destination of that one card
-	float offSet = 1.0f; // How much the card moves in animation;
 
 	// Load graphic resources to a vector and pass it as a reference to functions that use it
 	std::vector<sf::Texture> textures;	// Vector for storing image
@@ -157,53 +153,35 @@ int main() {
 					updateStacks(cards, orderStacks, objectPositioner, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
 				}
+
 				// Game controls
-				// If mouse left button is pressed and game allows the move
-				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && !newGame &&
-							moveIsLegal(cards, orderStacks[highLighted.first], highLighted)) {
-					// Move all cards on top of highlighted card to the last stack
-					if (highLighted.first != orderStacks.size()-1) { // If card/cards are in old stack
-						int i = 0; // Iterator to find selected card's position in stack
-						while(orderStacks[highLighted.first][i] != highLighted.second) {
-							i++; // Skip cards till the selected card is found
+				if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left button is pressed
+					// If user is clicking on a highlighted card
+					if(moveIsLegal(cards, orderStacks[highLighted.first], highLighted)) { // If possible
+						objectPositioner.pickUpStack(cards, orderStacks, highLighted, prevStack, mouseCoords,
+								stackOffsetY); // Pick up that card/cards
+					} else if (areSameColor(newGameText.getFillColor(), sf::Color::Yellow)) {
+						// New game was clicked
+						newGamePopup.setVisibility(true); // Open new game popup window
+						newGameText.setFillColor(sf::Color::White); // Unhighlight button
+					} else if (newGamePopup.getVisibility()) { // If new game popup is open
+						if(newGamePopup.clickedButton(0)) { // If clicked new game
+							newGameConfirm = true; // Confirm new game selection
+							newGamePopup.setVisibility(false); // Close window
+						}	else if (newGamePopup.clickedButton(newGamePopup.getTexts().size()-1)) {
+							newGamePopup.setVisibility(false); // Clicked close window
 						}
-						while(i < orderStacks[highLighted.first].size()) { // Move all after card i
-							orderStacks.back().push_back(orderStacks[highLighted.first][i]); // To this stack
-							orderStacks[highLighted.first].erase(orderStacks[highLighted.first].begin()+i);
-							// And remove card from it's old stack
+					} else { // If deck is clicked
+						sf::RectangleShape deck = cardSlots[0];
+						if(objectPositioner.mouseIsOverObject(deck.getPosition(), deck.getSize(),
+									mouseCoords) && orderStacks[0].empty() && orderStacks.back().empty()) {
+							// Empty deck was clicked. Move the whole stack 1 to active stack
+							while(!orderStacks[1].empty()) {
+								orderStacks.back().push_back(orderStacks[1].back()); // Push new on top
+								orderStacks[1].pop_back(); // Remove top from old stack
+							}
+							prevStack = -1; // Setting this to -1 will restore dealt cards to deck
 						}
-						prevStack = highLighted.first; // Store old stack index
-						highLighted.first = orderStacks.size()-1; // Update highlight stack index
-					}
-					// Update card position with values converted from mouse position
-					for(int i = 0; i < orderStacks.back().size(); i++) {
-						sf::Vector2f mouseCoord = mouseCoords; // Store mousecoord
-						mouseCoord.x = mouseCoord.x-cardDimensions.x/2; // Center the card to mouse
-						mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*stackOffsetY;
-						cards[orderStacks.back()[i]].updatePosition(mouseCoord);
-					}
-				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !newGame &&
-								areSameColor(newGameText.getFillColor(), sf::Color::Yellow)) { // New game clicked
-					newGame = true;
-				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && newGame) {
-					if(areSameColor(newGamePopup.getTexts()[0].getFillColor(), sf::Color::Yellow)) {
-						newGameConfirm = true; // Confirm start new game
-						newGame = false;
-					} else if (areSameColor(newGamePopup.getTexts().back().getFillColor(),
-									sf::Color::Yellow)) { // If clicked return
-						newGame = false;
-					}
-				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !newGame) { // If deck is clicked
-					sf::RectangleShape deck = cardSlots[0];
-					if(objectPositioner.mouseIsOverObject(deck.getPosition(), deck.getSize(), mouseCoords)
-								&& orderStacks[0].empty() && orderStacks.back().empty()) {
-						std::cout << "Empty deck clicked" << std::endl;
-						// Move the whole stack 1 to active stack
-						while(!orderStacks[1].empty()) {
-							orderStacks.back().push_back(orderStacks[1].back()); // Push new on top
-							orderStacks[1].pop_back(); // Remove top from old stack
-						}
-						prevStack = -1;
 					}
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
@@ -255,26 +233,24 @@ int main() {
 						}
 					}
 					// If mouse is over an object, highlight it
-					if(!newGame) {
-						highLightText(newGameText, objectPositioner, mouseCoords);
-						highLightCard(cards, orderStacks, highLighted, objectPositioner, mouseCoords);
-					} else { // If the popup window is open
+					if(newGamePopup.getVisibility()) { // If popup is open
 						std::vector<sf::Text>& texts = newGamePopup.getTexts();
 						for(int i = 0; i < texts.size(); i++) // For every text in the window
 							highLightText(texts[i], objectPositioner, mouseCoords);
+					}	else {
+						highLightText(newGameText, objectPositioner, mouseCoords);
+						highLightCard(cards, orderStacks, highLighted, objectPositioner, mouseCoords);
 					}
-				}
+				} // End game controls
 
 				// Check if new game was initiated
 				if(newGameConfirm) {
-					std::cout << "New game started" << std::endl;
 					newGameConfirm = false; // Unflag the newGame variable
 					needShuffle = true;
 					gameState = 0; // Reset game
 				}
 				// Check for win conditions
 				if (haveWinConditions(cards, orderStacks)) { // If all conditions for winning were met
-					std::cout << "Winner is you." << std::endl;
 					needShuffle = true;
 					gameState++;
 				}
@@ -316,7 +292,7 @@ int main() {
 			}
 		}
 
-		if(newGame) { // If new game button has been pressed
+		if(newGamePopup.getVisibility()) { // If popup is open
 			window.draw(newGamePopup.getShape()); // Display new game popup window
 			std::vector<sf::Text>& texts = newGamePopup.getTexts();
 			for(int i = 0; i < texts.size(); i++) // For every text in the window

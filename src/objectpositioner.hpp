@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <utility>
 #include "SFML/Graphics.hpp"
 #include "card.hpp"
 
@@ -17,6 +18,7 @@ class ObjectPositioner {
 		sf::Color bgColor;
 		sf::Vector2f cardDimensions;
 		std::vector<sf::RectangleShape> cardSlots; // Store the slots for cards
+
 	public:
 		ObjectPositioner(sf::Color bg, sf::Vector2f dims); // Constructor
 		~ObjectPositioner(); // Destructor
@@ -25,14 +27,17 @@ class ObjectPositioner {
 		void positionCardSlots(std::string file); // Set card slot positions from file
 		std::vector<sf::RectangleShape> getCardSlotPositions(); // Get the card slots for rendering
 		sf::RectangleShape createRectangle(sf::Vector2f dims, sf::Vector2f pos,
-													sf::Color outLine, sf::Color fill, int edgeSize);
+					sf::Color outLine, sf::Color fill, int edgeSize);
 		std::vector<Card> createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t,
-						const std::vector<sf::Texture>& texs);
+					const std::vector<sf::Texture>& texs);
 		float adjustPositioningSpeed(const float& a, const float& b);
 		void getNextCardPos(sf::Vector2f &cardPos, sf::Vector2f &destPos);
 		bool moveCard(Card &card, sf::Vector2f destPos, sf::Vector2f offSet, int stack);
 		bool mouseIsOverObject(sf::Vector2f object, sf::Vector2f size, sf::Vector2f mouse);
+		void pickUpStack(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+					std::pair<int, int> &select, int &prevStack, sf::Vector2f &mouseCoords,
+					float &stackOffsetY);
 		void compressStack(std::vector<Card> &cards, std::vector<int> &stack,
-						float &max, float &stackOffsetY);
+					float &max, float &stackOffsetY);
 };
 #endif	// SRC_OBJECTPOSITIONER_HPP_
