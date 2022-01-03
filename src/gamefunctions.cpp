@@ -166,7 +166,7 @@ int findClosestStack(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 				int cSuit = cards[stacks.back()[0]].getSuit();
 				sf::Color cCol = cards[stacks.back()[0]].getText().getFillColor();
 				if(i >= 6 || (i < 6 && stacks.back().size() == 1)) {
-					if(i == 1 && prevStack == 1) { // Card picked from dealt cards
+					if(i == prevStack) { // If closest is the previous stack
 						closestStack = i; // Can return back to dealt cards if not placed anywhere
 						shortestDistance = distance;
 					}	else { // In other cases like if stack is empty
