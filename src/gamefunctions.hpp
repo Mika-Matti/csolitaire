@@ -4,6 +4,7 @@
 #define SRC_GAMEFUNCTIONS_HPP_
 
 #include <iostream>
+#include <cmath>
 #include <vector>
 #include <utility>
 #include <string>
@@ -23,5 +24,7 @@ void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stac
 			std::pair<int, int> &select, ObjectPositioner &op, sf::Vector2f &mouseCoords);
 bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<int, int> &select);
 bool haveWinConditions(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks);
+int findClosestStack(std::vector<Card> &cards, std::vector<sf::RectangleShape> &slots,
+			std::vector<std::vector<int>> &stacks, int &prevStack, sf::Vector2f &m);
 
 #endif // SRC_GAMEFUNCTIONS_HPP_

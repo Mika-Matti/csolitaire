@@ -145,3 +145,48 @@ bool haveWinConditions(std::vector<Card> &cards, std::vector<std::vector<int>> &
 	} // End checking win conditions
 	return true;
 }
+
+int findClosestStack(std::vector<Card> &cards, std::vector<sf::RectangleShape> &slots,
+			std::vector<std::vector<int>> &stacks, int &prevStack, sf::Vector2f &m) {
+	float shortestDistance = 9999999.0f;
+	float closestStack = prevStack; // Result that will be returned from function
+	if(prevStack == 0) { // If the stack is the deck
+		closestStack = 1; // Then the cards go to the stack next to deck
+	} else if (prevStack == -1) { // If the deck is empty
+		closestStack = 0; // Cards dealt to slot next to deck return to deck
+	} else {	// In all other cases, find a stack closest to the cards held by mouse
+		for(int i = 1; i < slots.size(); i++) { // Skipping first slot
+			sf::Vector2f dims = slots[i].getSize();
+			int	sx = slots[i].getPosition().x+dims.x/2;
+			int sy = slots[i].getPosition().y+dims.y/2;
+			float distance = sqrt(pow(m.x-sx, 2)+pow(m.y-sy, 2) * 1.0);
+			if(distance < shortestDistance) {
+				// Allow only stacks with 1 card to upper stacks
+				int cNum = cards[stacks.back()[0]].getNumber();
+				int cSuit = cards[stacks.back()[0]].getSuit();
+				sf::Color cCol = cards[stacks.back()[0]].getText().getFillColor();
+				if(i >= 6 || (i < 6 && stacks.back().size() == 1)) {
+					if(i == 1 && prevStack == 1) { // Card picked from dealt cards
+						closestStack = i; // Can return back to dealt cards if not placed anywhere
+						shortestDistance = distance;
+					}	else { // In other cases like if stack is empty
+						if(stacks[i].empty() && (cNum == 1 && i < 6 || cNum == 13 && i >= 6)) {
+							closestStack = i; // Then only ace or king is allowed
+							shortestDistance = distance;
+						} else if (!stacks[i].empty()) { // If stack is not empty then depending on the game rules
+							int dNum = cards[stacks[i].back()].getNumber();
+							int dSuit = cards[stacks[i].back()].getSuit();
+							sf::Color dCol = cards[stacks[i].back()].getText().getFillColor();
+							if((cNum == dNum+1 && cSuit == dSuit && i < 6) ||
+										(cNum == dNum-1) && !areSameColor(cCol, dCol)) {
+								closestStack = i; // Allow ascending same suit cards to top level
+								shortestDistance = distance;
+							}
+					 	}
+					}
+				}
+			}
+		}
+	}
+	return closestStack;
+}

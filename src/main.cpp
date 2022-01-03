@@ -185,32 +185,11 @@ int main() {
 					}
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
-					if(!orderStacks.back().empty() && !animating) {
-						// Find closest card stack
-						float shortestDistance = 9999999.0f;
-						if(prevStack == 0) {
-							closestStack = 1;
-						} else if (prevStack == -1) {
-							closestStack = 0;
-						} else {
-							for(int i = 1; i < cardSlots.size(); i++) { // Skipping first slot
-								sf::Vector2f m = mouseCoords;
-								int	sx = cardSlots[i].getPosition().x+cardDimensions.x/2;
-								int sy = cardSlots[i].getPosition().y+cardDimensions.y/2;
-								float distance = sqrt(pow(m.x-sx, 2)+pow(m.y-sy, 2) * 1.0);
-								if(distance < shortestDistance) {
-									if(i >= 6 || (i < 6 && orderStacks.back().size() == 1)) {
-										if(i == 1 && prevStack == 1 || i > 1) {
-											closestStack = i;
-											shortestDistance = distance;
-										}
-									}
-								}
-							}
-						}
+					if(!orderStacks.back().empty() && !animating) { // If there are cards picked up
+						// Find closest allowed card stack to put them in
+						closestStack = findClosestStack(cards, cardSlots, orderStacks, prevStack, mouseCoords);
 						animating = true; // Begin animation of selected cards moving to closest stack
-					}
-					if(animating) { // Animate card closing to their destination position
+					} else if (animating) { // Animate card closing to their destination position
 						stackChanged = true; // A change is happening in the stacks
 						int stack = orderStacks[closestStack].size();
 						sf::Vector2f dest = cardSlots[closestStack].getPosition(); // Destination for cards
@@ -224,9 +203,8 @@ int main() {
 							// Move card reference to the new orderStack vector
 							orderStacks[closestStack].push_back(orderStacks.back()[0]); // Place to the new
 							orderStacks.back().erase(orderStacks.back().begin()); // Erase from old stack
-							if(orderStacks.back().empty()) { // If there are no cards left
+							if(orderStacks.back().empty()) // If there are no cards left
 								animating = false;
-						 	}
 						}
 					}
 					// If mouse is over an object, highlight it
