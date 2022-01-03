@@ -156,8 +156,8 @@ int main() {
 
 				// Game controls
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left button is pressed
-					// If user is clicking on a highlighted card
-					if(moveIsLegal(cards, orderStacks[highLighted.first], highLighted)) { // If possible
+					// If user is clicking on a highlighted card and the move is allowed
+					if(moveIsLegal(cards, orderStacks[highLighted.first], highLighted)) {
 						objectPositioner.pickUpStack(cards, orderStacks, highLighted, prevStack, mouseCoords,
 								stackOffsetY); // Pick up that card/cards
 					} else if (areSameColor(newGameText.getFillColor(), sf::Color::Yellow)) {
@@ -208,26 +208,23 @@ int main() {
 								}
 							}
 						}
-						std::cout << "Closest stack: " << cardSlots[closestStack].getPosition().x
-										 << " " << cardSlots[closestStack].getPosition().y	<< std::endl;
 						animating = true; // Begin animation of selected cards moving to closest stack
 					}
 					if(animating) { // Animate card closing to their destination position
 						stackChanged = true; // A change is happening in the stacks
-						cardPos = cards[orderStacks.back()[0]].getDrawable().getPosition();
-						destPos = cardSlots[closestStack].getPosition(); // Destination for cards
+						int stack = orderStacks[closestStack].size();
+						sf::Vector2f dest = cardSlots[closestStack].getPosition(); // Destination for cards
+						sf::Vector2f offSet(0.1f, -0.1f);
 						if(closestStack > 5) {
-							destPos.y = destPos.y+orderStacks[closestStack].size()*stackOffsetY;
+							offSet.x = 0.0f;
+							offSet.y = stackOffsetY;
 						}
-						// If the card is not yet in it's destination slot
-						if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
-							objectPositioner.getNextCardPos(cardPos, destPos);
-							cards[orderStacks.back()[0]].updatePosition(cardPos); // Update coords of object;
-						} else { // Move card reference to the new orderStack vector
+						// If the card cant move closer to destination slot
+						if(!objectPositioner.moveCard(cards[orderStacks.back()[0]], dest, offSet, stack)) {
+							// Move card reference to the new orderStack vector
 							orderStacks[closestStack].push_back(orderStacks.back()[0]); // Place to the new
-							orderStacks.back().erase(orderStacks.back().begin());
-							// If there are no cards left
-							if(orderStacks.back().empty()) {
+							orderStacks.back().erase(orderStacks.back().begin()); // Erase from old stack
+							if(orderStacks.back().empty()) { // If there are no cards left
 								animating = false;
 						 	}
 						}
