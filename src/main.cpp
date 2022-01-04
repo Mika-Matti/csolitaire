@@ -211,9 +211,9 @@ int main() {
 					if(newGamePopup.getVisibility()) { // If popup is open
 						std::vector<sf::Text>& texts = newGamePopup.getTexts();
 						for(int i = 0; i < texts.size(); i++) // For every text in the window
-							highLightText(texts[i], objectPositioner, mouseCoords);
+							highLightText(texts[i], objectPositioner, mouseCoords, true);
 					}	else {
-						highLightText(newGameText, objectPositioner, mouseCoords);
+						highLightText(newGameText, objectPositioner, mouseCoords, false);
 						highLightCard(cards, orderStacks, highLighted, objectPositioner, mouseCoords);
 					}
 				} // End game controls

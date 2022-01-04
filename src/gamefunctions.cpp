@@ -63,11 +63,15 @@ std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &windo
 	return coords;
 }
 
-void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords) {
+void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords, bool center) {
 	sf::FloatRect bounds = text.getLocalBounds();
+	sf::Vector2f pos = text.getPosition();
 	sf::Vector2f size = sf::Vector2f(bounds.left+bounds.width, bounds.top+bounds.height);
-
-	if(op.mouseIsOverObject(text.getPosition(), size, mouseCoords)) {
+	if(center) { // If the text was centered
+		pos.x = pos.x-size.x/2;
+		pos.y = pos.y-size.y/2;
+	}
+	if(op.mouseIsOverObject(pos, size, mouseCoords)) {
 		text.setFillColor(sf::Color::Yellow);
 	}	else {
 		text.setFillColor(sf::Color::White);

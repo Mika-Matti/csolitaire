@@ -19,7 +19,7 @@ void updateStacks(std::vector<Card> &cards, std::vector<std::vector<int>> &stack
 			ObjectPositioner &op, float &maxStackHeight, float &stackOffsetY);
 void resetDrawOrder(std::vector<std::vector<int>> &stacks, std::vector<Card> &cards);
 std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &window);
-void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords);
+void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords, bool center);
 void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
 			std::pair<int, int> &select, ObjectPositioner &op, sf::Vector2f &mouseCoords);
 bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<int, int> &select);
