@@ -56,18 +56,14 @@ float ObjectPositioner::adjustPositioningSpeed(const float& a, const float& b) {
 	float v = (b > a) ? b-a : a-b; // First get the distance between object and destination
 	float minSpeed = 150.0f;
 	float speed = minSpeed;	// Store the return value
-	float base = 10.0f; // Speed will be in the form n*base^x
 	if(v > minSpeed) {
-		while(v >= minSpeed*base) { // This while loop keeps dividing v to find amount of digits
-			v = v / base;
-			speed = speed*base;	// This ensures speed will never be greater than distance
-		}
+		speed = v/2;
 	} else { // If speed is under minimum speed
 		speed = v; // Then simply move the whole distance in next frame
 	}
-
-	if(b-a < 0)
+	if(b-a < 0) {
 		speed = speed*(-1);
+	}
 	return speed;	// Return the optimal positioning speed
 }
 
@@ -78,7 +74,7 @@ void ObjectPositioner::getNextCardPos(sf::Vector2f &cardPos, sf::Vector2f &destP
 		cardPos.x = cardPos.x+speed; // Move horizontally towards destination
 	}
 
-	if(std::abs(cardPos.y-destPos.y) > 0.01f) {
+	if(std::abs(cardPos.y-destPos.y) >= 0.01f) {
 		speed = adjustPositioningSpeed(cardPos.y, destPos.y);
 		cardPos.y = cardPos.y+speed; // Move vertically towards destination
 	}

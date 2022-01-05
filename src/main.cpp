@@ -60,6 +60,7 @@ int main() {
 	std::vector<Card> cards;
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	bool animating = false; // Control animating card movement during gameplay
+	bool rightClicked = false; // If mouse was right clicked, program finds cards it can place up
 	bool newGameConfirm = false; // Flagged true if new game is confirmed from popup window
 	bool stackChanged = false; // Call the compression function if this is true
 	int gameState = 0; // Used to control the phases of the game
@@ -149,7 +150,7 @@ int main() {
 				break;
 			case 2: // The gameplay state and mouse events
 				// Check for cards that can be flipped or for stacks that need vertical compression
-				if(stackChanged && !animating) {
+				if(stackChanged && !animating && !rightClicked) {
 					updateStacks(cards, orderStacks, objectPositioner, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
 				}
@@ -183,6 +184,9 @@ int main() {
 							prevStack = -1; // Setting this to -1 will restore dealt cards to deck
 						}
 					}
+				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) { // If mouse right is pressed
+					if(rightClicked == false)
+						rightClicked = true;
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
 					if(!orderStacks.back().empty() && !animating) { // If there are cards picked up
@@ -206,15 +210,22 @@ int main() {
 							if(orderStacks.back().empty()) // If there are no cards left
 								animating = false;
 						}
-					}
-					// If mouse is over an object, highlight it
-					if(newGamePopup.getVisibility()) { // If popup is open
-						std::vector<sf::Text>& texts = newGamePopup.getTexts();
-						for(int i = 0; i < texts.size(); i++) // For every text in the window
-							highLightText(texts[i], objectPositioner, mouseCoords, true);
-					}	else {
-						highLightText(newGameText, objectPositioner, mouseCoords, false);
-						highLightCard(cards, orderStacks, highLighted, objectPositioner, mouseCoords);
+					} else if (rightClicked) { // Find all cards that can be placed to upper stacks
+						if(!findMovableCard(cards, cardSlots, orderStacks, objectPositioner)) {
+							rightClicked = false; // All movable cards have been found
+						} else {
+							stackChanged = true;
+						}
+					} else {
+						// If mouse is over an object, highlight it
+						if(newGamePopup.getVisibility()) { // If popup is open
+							std::vector<sf::Text>& texts = newGamePopup.getTexts();
+							for(int i = 0; i < texts.size(); i++) // For every text in the window
+								highLightText(texts[i], objectPositioner, mouseCoords, true);
+						}	else {
+							highLightText(newGameText, objectPositioner, mouseCoords, false);
+							highLightCard(cards, orderStacks, highLighted, objectPositioner, mouseCoords);
+						}
 					}
 				} // End game controls
 
@@ -227,6 +238,7 @@ int main() {
 				// Check for win conditions
 				if (haveWinConditions(cards, orderStacks)) { // If all conditions for winning were met
 					needShuffle = true;
+					rightClicked = false;
 					gameState++;
 				}
 				break;	// Gameplay part ends

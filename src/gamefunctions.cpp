@@ -194,3 +194,47 @@ int findClosestStack(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 	}
 	return closestStack;
 }
+
+bool findMovableCard(std::vector<Card> &cards, std::vector<sf::RectangleShape> &slots,
+			std::vector<std::vector<int>> &stacks, ObjectPositioner &op) {
+	bool cardFound = false; // Flag this if a placeable card is found
+	int stack = 0; // Store stacksize of destination her
+	sf::Vector2f dPos; // Store destination position here
+	sf::Vector2f offSet(0.1f, -0.1f);
+
+	for(int i = 1; i < 13; i++) { // For all top cards in lower stacks
+		if(i == 1 || i >= 6) { // If stack is either dealt cards or one of the lower stacks
+			if(!stacks[i].empty()) {	// If stack is not empty
+				Card& cCard = cards[stacks[i].back()];
+				for(int a = 2; a < 6; a++) { // For all upper stacks
+					if(!stacks[a].empty()) { // If destination is not empty
+						Card& dCard = cards[stacks[a].back()]; // Get top card of the stack
+						if(cCard.getSuit() == dCard.getSuit() && cCard.getNumber() == dCard.getNumber()+1) {
+							cardFound = true; // A fitting card was found
+							dPos = dCard.getDrawable().getPosition();
+							stack = stacks[a].size();
+							// If the card cant move closer to destination slot
+						 	if(!op.moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
+								// Move card reference to the new orderStack vector
+								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
+							}
+							break;
+						}
+					} else { // If destination is empty
+						if(cCard.getNumber() == 1) { // If current card is an ace
+							cardFound = true; // A fitting card was found
+							dPos = slots[a].getPosition();
+							// If the card cant move closer to destination slot
+							if(!op.moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
+								// Move card reference to the new orderStack vector
+								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	return cardFound;
+}
