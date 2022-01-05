@@ -45,10 +45,14 @@ int main() {
 	coords.setPosition(wWidth-100, wHeight-30);
 	sf::Text seedText = text; // Display the seed of the current game
 	seedText.setPosition(5, wHeight-30);
-	sf::Text gameTime = text; // Display time for the game
-	gameTime.setPosition(260, 10);
-	gameTime.setString("00:00:00"); // Set gametime to HH:MM:SS
-	centerText(gameTime, 100, 30); // Center the text
+	sf::Text timeText = text; // Display time for the game
+	timeText.setPosition(260, 10);
+	timeText.setString("00:00:00"); // Set gametime to HH:MM:SS
+	centerText(timeText, 100, 30); // Center the text
+	sf::Text movesText = text; // Display moves made
+	movesText.setPosition(260, 40); // Set below timeText
+	movesText.setString("00000000");
+	centerText(movesText, 100, 30);
 	sf::Text newGameText = text; // Text element for newGameBtn
 	newGameText.setPosition(wWidth-105, 10);
 	newGameText.setString("NEW GAME");
@@ -113,7 +117,8 @@ int main() {
 		// Game logic and states
 		switch(gameState) {
 			case 0: // Shuffle deck and animate cards to go in place in this state
-				gameTime.setString("00:00:00"); // Set gametime to HH:MM:SS
+				timeText.setString("00:00:00"); // Set gametime to HH:MM:SS
+				movesText.setString("00000000"); // Set moves to 0
 				if(needShuffle) {
 					resetDrawOrder(orderStacks, cards);
 					seed = std::time(0); // Set seed for new shuffle
@@ -155,9 +160,10 @@ int main() {
 				}
 				break;
 			case 2: // The gameplay state and mouse events
-				if(moves > 0) // If player has made a move
-					gameTime.setString(getTime(clock)); // Update gameTime
-
+				if(moves > 0) { // If player has made a move
+					timeText.setString(getTime(clock)); // Update gameTime
+					movesText.setString(setFormattedText(movesText, std::to_string(moves)));
+				}
 				// Check for cards that can be flipped or for stacks that need vertical compression
 				if(stackChanged && !animating && !rightClicked) {
 					updateStacks(cards, orderStacks, objectPositioner, maxStackHeight, stackOffsetY);
@@ -271,7 +277,8 @@ int main() {
 		window.draw(coords); // TODO add all the text objects to a vector
 		window.draw(newGameText);
 		window.draw(seedText);
-		window.draw(gameTime);
+		window.draw(timeText);
+		window.draw(movesText);
 
 		// Draw cardslots
 		for(int i = 0; i < cardSlots.size(); i++) {

@@ -18,6 +18,7 @@ void popFromAndPushTo(std::vector<int> &a, std::vector<int> &b, int &x);
 void updateStacks(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
 			ObjectPositioner &op, float &maxStackHeight, float &stackOffsetY);
 void resetDrawOrder(std::vector<std::vector<int>> &stacks, std::vector<Card> &cards);
+std::string setFormattedText(sf::Text &text, std::string str);
 std::string getTime(sf::Clock &clock);
 std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &window);
 void centerText(sf::Text &text, float width, float height);

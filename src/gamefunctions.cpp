@@ -73,6 +73,12 @@ std::string getTime(sf::Clock &clock) {
 	return timeString;
 }
 
+std::string setFormattedText(sf::Text &text, std::string str) {
+	std::string t = text.getString();
+	str.insert(str.begin(), t.length()-str.length(), '0');
+	return str;
+}
+
 std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &window) {
 	std::string coords = "";
 	mouseCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
