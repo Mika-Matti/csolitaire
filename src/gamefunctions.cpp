@@ -54,6 +54,25 @@ void resetDrawOrder(std::vector<std::vector<int>> &stacks, std::vector<Card> &ca
 	}
 }
 
+std::string getTime(sf::Clock &clock) {
+	std::string timeString = "00:00:00";
+	int time = static_cast<int>(clock.getElapsedTime().asSeconds());
+	std::string hours = std::to_string(time/3600);
+	std::string minutes = std::to_string((time/60)%60);
+	std::string seconds = std::to_string(time%60);
+	if(hours.size() < 2) // Maintain fixed format
+		hours = "0" + hours;
+	if(minutes.size() < 2)
+		minutes = "0" + minutes;
+	if(seconds.size() < 2)
+		seconds = "0" + seconds;
+
+
+	timeString = hours + ":" + minutes + ":" + seconds;
+
+	return timeString;
+}
+
 std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &window) {
 	std::string coords = "";
 	mouseCoords = window.mapPixelToCoords(sf::Mouse::getPosition(window));
@@ -61,6 +80,14 @@ std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &windo
 	std::string y = std::to_string(mouseCoords.y);
 	coords = x.substr(0, x.find(".")) + ", "	+ y.substr(0, y.find("."));
 	return coords;
+}
+
+void centerText(sf::Text &text, float width, float height) {
+	// Center the text and place it to the middle of given width and height
+	sf::FloatRect textRect = text.getLocalBounds();
+	sf::Vector2f pos = text.getPosition();
+	text.setOrigin(textRect.left + textRect.width/2, textRect.top + textRect.height/2);
+	text.setPosition(pos.x+width/2.0, pos.y+height/2);
 }
 
 void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords, bool center) {

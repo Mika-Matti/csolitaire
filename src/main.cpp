@@ -41,10 +41,14 @@ int main() {
 	window.setVerticalSyncEnabled(true); // Synchronize refresh rate to monitor vertical frequency
 
 	// Game elements
-	sf::Text coords = text; // Display this text in upper right corner of window
+	sf::Text coords = text; // Display this text in bottom right corner of window
 	coords.setPosition(wWidth-100, wHeight-30);
 	sf::Text seedText = text; // Display the seed of the current game
 	seedText.setPosition(5, wHeight-30);
+	sf::Text gameTime = text; // Display time for the game
+	gameTime.setPosition(260, 10);
+	gameTime.setString("00:00:00"); // Set gametime to HH:MM:SS
+	centerText(gameTime, 100, 30); // Center the text
 	sf::Text newGameText = text; // Text element for newGameBtn
 	newGameText.setPosition(wWidth-105, 10);
 	newGameText.setString("NEW GAME");
@@ -59,6 +63,7 @@ int main() {
 	std::vector<sf::RectangleShape> cardSlots;
 	std::vector<Card> cards;
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
+	std::pair <int, int> highLighted(0, 0); // Points to a stack and card that is highlighted
 	bool animating = false; // Control animating card movement during gameplay
 	bool rightClicked = false; // If mouse was right clicked, program finds cards it can place up
 	bool newGameConfirm = false; // Flagged true if new game is confirmed from popup window
@@ -66,12 +71,11 @@ int main() {
 	int gameState = 0; // Used to control the phases of the game
 	int index = 0; // Used to select card for animating movement in game
 	int amount = 1; // How many cards will be dealt to this slot
+	int moves = 0; // Moves made during the game
 	int closestStack = 0; // Used for animating card stacks moving to closest stack
 	int prevStack = 0; // For checking what stack the card came from
 	int64_t seed = 0; // Seed used to generate the shuffled card deck for the game
-	std::pair <int, int> highLighted(0, 0); // Points to a stack and card that is highlighted
-	sf::Vector2f cardPos(20.0f, 20.0f); // Used to track one card position
-	sf::Vector2f destPos(20.0f, 20.0f);	// Used to track destination of that one card
+	sf::Clock clock; // Used to track time of the game
 
 	// Load graphic resources to a vector and pass it as a reference to functions that use it
 	std::vector<sf::Texture> textures;	// Vector for storing image
@@ -109,6 +113,7 @@ int main() {
 		// Game logic and states
 		switch(gameState) {
 			case 0: // Shuffle deck and animate cards to go in place in this state
+				gameTime.setString("00:00:00"); // Set gametime to HH:MM:SS
 				if(needShuffle) {
 					resetDrawOrder(orderStacks, cards);
 					seed = std::time(0); // Set seed for new shuffle
@@ -146,13 +151,21 @@ int main() {
 					index = 0; // Reset card index for when game is won or new game is selected
 					amount = 1; // Reset amount of cards to deal to current slot
 					stackChanged = true;
+					moves = -1; // the first move that brings moves amount to 0 is made by program
 				}
 				break;
 			case 2: // The gameplay state and mouse events
+				if(moves > 0) // If player has made a move
+					gameTime.setString(getTime(clock)); // Update gameTime
+
 				// Check for cards that can be flipped or for stacks that need vertical compression
 				if(stackChanged && !animating && !rightClicked) {
 					updateStacks(cards, orderStacks, objectPositioner, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
+					moves++; // a move was made
+					if(moves == 1) {
+						clock.restart(); // Clock will start from 0 when player makes first move
+					}
 				}
 
 				// Game controls
@@ -258,6 +271,7 @@ int main() {
 		window.draw(coords); // TODO add all the text objects to a vector
 		window.draw(newGameText);
 		window.draw(seedText);
+		window.draw(gameTime);
 
 		// Draw cardslots
 		for(int i = 0; i < cardSlots.size(); i++) {

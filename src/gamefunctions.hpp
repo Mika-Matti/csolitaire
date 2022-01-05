@@ -18,7 +18,9 @@ void popFromAndPushTo(std::vector<int> &a, std::vector<int> &b, int &x);
 void updateStacks(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
 			ObjectPositioner &op, float &maxStackHeight, float &stackOffsetY);
 void resetDrawOrder(std::vector<std::vector<int>> &stacks, std::vector<Card> &cards);
+std::string getTime(sf::Clock &clock);
 std::string updateMouseCoords(sf::Vector2f &mouseCoords, sf::RenderWindow &window);
+void centerText(sf::Text &text, float width, float height);
 void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords, bool center);
 void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
 			std::pair<int, int> &select, ObjectPositioner &op, sf::Vector2f &mouseCoords);
