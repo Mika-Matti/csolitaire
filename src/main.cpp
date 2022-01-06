@@ -22,6 +22,7 @@ int main() {
 	unsigned int characterSizeUsed = 24;
   sf::Texture& texture = const_cast<sf::Texture&>(font.getTexture(characterSizeUsed));
   texture.setSmooth(false);
+	bool focus = true; // Track if the windows is active
 
 	// Card Settings
 	sf::Vector2f cardDimensions = sf::Vector2f(100.0f, 150.0f);
@@ -111,7 +112,15 @@ int main() {
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed)
 				window.close();
+			else if (event.type == sf::Event::LostFocus)
+				focus = false;
 		} // Exit mechanism ends
+
+		while(!focus) { // If windows is not focus
+			window.pollEvent(event);
+			if (event.type == sf::Event::GainedFocus) // If focus is gained
+				focus = true; // Break while loop
+		}
 
 		coords.setString(updateMouseCoords(mouseCoords, window)); // Set text to new mouse coords
 
