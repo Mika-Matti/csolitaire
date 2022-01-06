@@ -229,7 +229,7 @@ int findClosestStack(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 }
 
 bool findMovableCard(std::vector<Card> &cards, std::vector<sf::RectangleShape> &slots,
-			std::vector<std::vector<int>> &stacks, ObjectPositioner &op) {
+			std::vector<std::vector<int>> &stacks, ObjectPositioner &op, int &moves) {
 	bool cardFound = false; // Flag this if a placeable card is found
 	int stack = 0; // Store stacksize of destination her
 	sf::Vector2f dPos; // Store destination position here
@@ -250,6 +250,7 @@ bool findMovableCard(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 						 	if(!op.moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
 								// Move card reference to the new orderStack vector
 								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
+								moves++;
 							}
 							break;
 						}
@@ -261,6 +262,7 @@ bool findMovableCard(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 							if(!op.moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
 								// Move card reference to the new orderStack vector
 								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
+								moves++;
 							}
 							break;
 						}

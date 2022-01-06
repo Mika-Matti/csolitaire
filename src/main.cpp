@@ -74,10 +74,10 @@ int main() {
 	bool mouseReleased = false; // Used in early game states to skip animation
 	bool newGameConfirm = false; // Flagged true if new game is confirmed from popup window
 	bool stackChanged = false; // Call the compression function if this is true
+	int autoMoves = 0; // If automatic card mover moved more than one card
 	int gameState = 0; // Used to control the phases of the game
 	int index = 0; // Used to select card for animating movement in game
 	int amount = 1; // How many cards will be dealt to this slot
-	int moves = 0; // Moves made during the game
 	int closestStack = 0; // Used for animating card stacks moving to closest stack
 	int prevStack = 0; // For checking what stack the card came from
 	int64_t seed = 0; // Seed used to generate the shuffled card deck for the game
@@ -175,24 +175,33 @@ int main() {
 					index = 0; // Reset card index for when game is won or new game is selected
 					amount = 1; // Reset amount of cards to deal to current slot
 					stackChanged = true;
-					moves = -1; // the first move that brings moves amount to 0 is made by program
+					objectPositioner.setMoves(-1); // Reset moves, computer makes 1 move
 					mouseReleased = false;
 					objectPositioner.setSkip(false); // Make sure animations aren't skipped anymore
 				}
 				break;
 			case 2: // The gameplay state and mouse events
-				if(moves > 0) { // If player has made a move
+				if(objectPositioner.getMoves() > 0) { // If player has made a move
 					timeText.setString(getTime(clock)); // Update gameTime
-					movesText.setString(setFormattedText(movesText, std::to_string(moves)));
+					movesText.setString(setFormattedText(movesText,
+								std::to_string(objectPositioner.getMoves())));
 				}
+
+				// To start the timer in the game
+				if(objectPositioner.getMoves() == 0 && stackChanged) {
+					clock.restart(); // Clock will start from 0 when player makes first move
+				}
+
 				// Check for cards that can be flipped or for stacks that need vertical compression
 				if(stackChanged && !animating && !rightClicked) {
 					updateStacks(cards, orderStacks, objectPositioner, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
-					moves++; // a move was made
-					if(moves == 1) {
-						clock.restart(); // Clock will start from 0 when player makes first move
+					if(autoMoves > 0) { // If automatic card mover made moves
+						objectPositioner.setMoves(objectPositioner.getMoves()+autoMoves); // Add the moves
+					} else { // Otherwise just add the one move that was made in the game
+						objectPositioner.setMoves(objectPositioner.getMoves()+1);
 					}
+					autoMoves = 0; // Reset the automatically made moves
 				}
 
 				// Game controls
@@ -251,14 +260,16 @@ int main() {
 								animating = false;
 						}
 					} else if (rightClicked) { // Find all cards that can be placed to upper stacks
-						if(!findMovableCard(cards, cardSlots, orderStacks, objectPositioner)) {
+						if(!findMovableCard(cards, cardSlots, orderStacks, objectPositioner, autoMoves)) {
 							rightClicked = false; // All movable cards have been found
 						} else {
-							stackChanged = true;
+							if(!stackChanged) { // If stackChanged wasn't true
+								stackChanged = true;
+							}
 						}
 					} else {
 						// If mouse is over an object, highlight it
-						if(newGamePopup.getVisibility()) { // If popup is open
+						if (newGamePopup.getVisibility()) { // If popup is open
 							std::vector<sf::Text>& texts = newGamePopup.getTexts();
 							for(int i = 0; i < texts.size(); i++) // For every text in the window
 								highLightText(texts[i], objectPositioner, mouseCoords, true);
@@ -270,7 +281,7 @@ int main() {
 				} // End game controls
 
 				// Check if new game was initiated
-				if(newGameConfirm) {
+				if (newGameConfirm) {
 					newGameConfirm = false; // Unflag the newGame variable
 					needShuffle = true;
 					gameState = 0; // Reset game

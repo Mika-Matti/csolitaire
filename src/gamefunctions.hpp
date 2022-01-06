@@ -30,6 +30,6 @@ bool haveWinConditions(std::vector<Card> &cards, std::vector<std::vector<int>> &
 int findClosestStack(std::vector<Card> &cards, std::vector<sf::RectangleShape> &slots,
 			std::vector<std::vector<int>> &stacks, int &prevStack, sf::Vector2f &m);
 bool findMovableCard(std::vector<Card> &cards, std::vector<sf::RectangleShape> &slots,
-											std::vector<std::vector<int>> &stacks, ObjectPositioner &op);
+											std::vector<std::vector<int>> &stacks, ObjectPositioner &op, int &moves);
 
 #endif // SRC_GAMEFUNCTIONS_HPP_

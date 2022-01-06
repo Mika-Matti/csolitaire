@@ -221,3 +221,11 @@ void ObjectPositioner::compressStack(std::vector<Card> &cards,
 		return; // Exit function
 	}
 }
+
+void ObjectPositioner::setMoves(int n) {
+	moves = n;
+}
+
+int ObjectPositioner::getMoves() {
+	return moves;
+}

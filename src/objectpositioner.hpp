@@ -18,6 +18,7 @@ class ObjectPositioner {
 		sf::Color bgColor;
 		sf::Vector2f cardDimensions;
 		std::vector<sf::RectangleShape> cardSlots; // Store the slots for cards
+		int moves = 0; // Counting objects(cards) moved
 		bool skip = false; // If this is true, animations are instant
 
 	public:
@@ -41,5 +42,7 @@ class ObjectPositioner {
 		void setSkip(bool state);
 		void compressStack(std::vector<Card> &cards, std::vector<int> &stack,
 					float &max, float &stackOffsetY);
+		void setMoves(int n);
+		int getMoves();
 };
 #endif	// SRC_OBJECTPOSITIONER_HPP_
