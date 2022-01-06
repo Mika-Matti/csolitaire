@@ -18,6 +18,7 @@ class ObjectPositioner {
 		sf::Color bgColor;
 		sf::Vector2f cardDimensions;
 		std::vector<sf::RectangleShape> cardSlots; // Store the slots for cards
+		bool skip = false; // If this is true, animations are instant
 
 	public:
 		ObjectPositioner(sf::Color bg, sf::Vector2f dims); // Constructor
@@ -37,6 +38,7 @@ class ObjectPositioner {
 		void pickUpStack(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
 					std::pair<int, int> &select, int &prevStack, sf::Vector2f &mouseCoords,
 					float &stackOffsetY);
+		void setSkip(bool state);
 		void compressStack(std::vector<Card> &cards, std::vector<int> &stack,
 					float &max, float &stackOffsetY);
 };

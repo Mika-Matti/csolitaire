@@ -69,7 +69,8 @@ int main() {
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	std::pair <int, int> highLighted(0, 0); // Points to a stack and card that is highlighted
 	bool animating = false; // Control animating card movement during gameplay
-	bool rightClicked = false; // If mouse was right clicked, program finds cards it can place up
+	bool rightClicked = false; // If mouse was right clicked, program finds cards it can place upi
+	bool mouseReleased = false; // Used in early game states to skip animation
 	bool newGameConfirm = false; // Flagged true if new game is confirmed from popup window
 	bool stackChanged = false; // Call the compression function if this is true
 	int gameState = 0; // Used to control the phases of the game
@@ -114,6 +115,15 @@ int main() {
 
 		coords.setString(updateMouseCoords(mouseCoords, window)); // Set text to new mouse coords
 
+		if(gameState < 2) { // If gamestate is in early animation phases
+			// Handle differentiating mouse pressed in last gamestate from mouse pressed here
+			if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left just now released
+				mouseReleased = true;
+			} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mouseReleased) {
+				objectPositioner.setSkip(true); // Then skip the early game state animations
+			}
+		}
+
 		// Game logic and states
 		switch(gameState) {
 			case 0: // Shuffle deck and animate cards to go in place in this state
@@ -157,6 +167,8 @@ int main() {
 					amount = 1; // Reset amount of cards to deal to current slot
 					stackChanged = true;
 					moves = -1; // the first move that brings moves amount to 0 is made by program
+					mouseReleased = false;
+					objectPositioner.setSkip(false); // Make sure animations aren't skipped anymore
 				}
 				break;
 			case 2: // The gameplay state and mouse events
@@ -204,8 +216,8 @@ int main() {
 						}
 					}
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) { // If mouse right is pressed
-					if(rightClicked == false)
-						rightClicked = true;
+					if(rightClicked == false) // If mouse right hasn't been pressed
+						rightClicked = true; // Then flag this to acknowledge it has been pressed
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
 					if(!orderStacks.back().empty() && !animating) { // If there are cards picked up
@@ -216,7 +228,7 @@ int main() {
 						stackChanged = true; // A change is happening in the stacks
 						int stack = orderStacks[closestStack].size();
 						sf::Vector2f dest = cardSlots[closestStack].getPosition(); // Destination for cards
-						sf::Vector2f offSet(0.1f, -0.1f);
+						sf::Vector2f offSet(0.0f, -0.0f);
 						if(closestStack > 5) {
 							offSet.x = 0.0f;
 							offSet.y = stackOffsetY;

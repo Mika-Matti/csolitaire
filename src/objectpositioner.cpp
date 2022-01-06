@@ -56,7 +56,7 @@ float ObjectPositioner::adjustPositioningSpeed(const float& a, const float& b) {
 	float v = (b > a) ? b-a : a-b; // First get the distance between object and destination
 	float minSpeed = 50.0f;
 	float speed = minSpeed;	// Store the return value
-	if(v > minSpeed) {
+	if(v > minSpeed && !skip) { // If distance is more than min speed and animations aren't skipped
 		speed = v/2;
 	} else { // If speed is under minimum speed
 		speed = v; // Then simply move the whole distance in next frame
@@ -128,6 +128,11 @@ void ObjectPositioner::pickUpStack(std::vector<Card> &cards,
 		mouseCoord.y = (mouseCoord.y-cardDimensions.y/2)+i*stackOffsetY;
 		cards[stacks.back()[i]].updatePosition(mouseCoord);
 	}
+}
+
+
+void ObjectPositioner::setSkip(bool state) {
+	skip = state;
 }
 
 /**
