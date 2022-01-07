@@ -176,6 +176,7 @@ int main() {
 					amount = 1; // Reset amount of cards to deal to current slot
 					stackChanged = true;
 					objectPositioner.setMoves(-1); // Reset moves, computer makes 1 move
+					autoMoves = 0;
 					mouseReleased = false;
 					objectPositioner.setSkip(false); // Make sure animations aren't skipped anymore
 				}
