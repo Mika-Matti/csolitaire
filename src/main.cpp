@@ -179,6 +179,7 @@ int main() {
 					autoMoves = 0;
 					mouseReleased = false;
 					objectPositioner.setSkip(false); // Make sure animations aren't skipped anymore
+					// objectPositioner.clearHistory(); // Clear movehistory
 				}
 				break;
 			case 2: // The gameplay state and mouse events
@@ -242,7 +243,9 @@ int main() {
 					if(!orderStacks.back().empty() && !animating) { // If there are cards picked up
 						// Find closest allowed card stack to put them in
 						closestStack = findClosestStack(cards, cardSlots, orderStacks, prevStack, mouseCoords);
-						animating = true; // Begin animation of selected cards moving to closest stack
+						objectPositioner.pushToHistory(orderStacks.back(), prevStack, closestStack);
+						// Begin animation of selected cards moving to closest stack
+						animating = true;
 					} else if (animating) { // Animate card closing to their destination position
 						stackChanged = true; // A change is happening in the stacks
 						int stack = orderStacks[closestStack].size();

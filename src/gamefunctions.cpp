@@ -248,6 +248,8 @@ bool findMovableCard(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 							stack = stacks[a].size();
 							// If the card cant move closer to destination slot
 						 	if(!op.moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
+								// Save move to movehistory
+								op.pushToHistory(std::vector<int>{stacks[i].back()}, i, a);
 								// Move card reference to the new orderStack vector
 								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
 								moves++;
@@ -260,6 +262,8 @@ bool findMovableCard(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 							dPos = slots[a].getPosition();
 							// If the card cant move closer to destination slot
 							if(!op.moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
+								// Save move to movehistory
+								op.pushToHistory(std::vector<int>{stacks[i].back()}, i, a);
 								// Move card reference to the new orderStack vector
 								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
 								moves++;

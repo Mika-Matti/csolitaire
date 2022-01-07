@@ -229,3 +229,20 @@ void ObjectPositioner::setMoves(int n) {
 int ObjectPositioner::getMoves() {
 	return moves;
 }
+
+void ObjectPositioner::pushToHistory(std::vector<int> cards, int from, int to) {
+	std::pair<std::vector<int>, std::pair<int, int>> newMove; // Construct a move for history
+	newMove.first = cards;
+	newMove.second.first = from;
+	newMove.second.second = to;
+	moveHistory.push_back(newMove);
+	std::cout << "From: " << from << " to: " << to << " these cards: ";
+	for(int i = 0; i < cards.size(); i++) {
+		std::cout << cards[i] << " ";
+	}
+	std::cout << std::endl;
+}
+
+void ObjectPositioner::clearHistory() {
+	moveHistory.clear();
+}

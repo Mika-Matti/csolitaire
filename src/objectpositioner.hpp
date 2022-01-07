@@ -18,6 +18,8 @@ class ObjectPositioner {
 		sf::Color bgColor;
 		sf::Vector2f cardDimensions;
 		std::vector<sf::RectangleShape> cardSlots; // Store the slots for cards
+		std::vector<std::pair<std::vector<int>, std::pair<int, int>>> moveHistory; // Store moves
+
 		int moves = 0; // Counting objects(cards) moved
 		bool skip = false; // If this is true, animations are instant
 
@@ -44,5 +46,7 @@ class ObjectPositioner {
 					float &max, float &stackOffsetY);
 		void setMoves(int n);
 		int getMoves();
+		void pushToHistory(std::vector<int>, int, int);
+		void clearHistory();
 };
 #endif	// SRC_OBJECTPOSITIONER_HPP_
