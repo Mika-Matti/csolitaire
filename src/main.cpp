@@ -70,6 +70,7 @@ int main() {
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	std::pair <int, int> highLighted(0, 0); // Points to a stack and card that is highlighted
 	bool animating = false; // Control animating card movement during gameplay
+	bool undoMove = false; // If undo button is pressed
 	bool rightClicked = false; // If mouse was right clicked, program finds cards it can place upi
 	bool mouseReleased = false; // Used in early game states to skip animation
 	bool newGameConfirm = false; // Flagged true if new game is confirmed from popup window
@@ -179,7 +180,7 @@ int main() {
 					autoMoves = 0;
 					mouseReleased = false;
 					objectPositioner.setSkip(false); // Make sure animations aren't skipped anymore
-					// objectPositioner.clearHistory(); // Clear movehistory
+					objectPositioner.clearHistory(); // Clear movehistory
 				}
 				break;
 			case 2: // The gameplay state and mouse events
@@ -195,7 +196,7 @@ int main() {
 				}
 
 				// Check for cards that can be flipped or for stacks that need vertical compression
-				if(stackChanged && !animating && !rightClicked) {
+				if(stackChanged && !animating && !rightClicked && !undoMove) {
 					updateStacks(cards, orderStacks, objectPositioner, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
 					if(autoMoves > 0) { // If automatic card mover made moves
@@ -238,6 +239,11 @@ int main() {
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) { // If mouse right is pressed
 					if(rightClicked == false) // If mouse right hasn't been pressed
 						rightClicked = true; // Then flag this to acknowledge it has been pressed
+				} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) &&
+								sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+					if(undoMove == false) {
+						undoMove = true;
+					}
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
 					if(!orderStacks.back().empty() && !animating) { // If there are cards picked up
@@ -266,10 +272,15 @@ int main() {
 					} else if (rightClicked) { // Find all cards that can be placed to upper stacks
 						if(!findMovableCard(cards, cardSlots, orderStacks, objectPositioner, autoMoves)) {
 							rightClicked = false; // All movable cards have been found
-						} else {
-							if(!stackChanged) { // If stackChanged wasn't true
-								stackChanged = true;
-							}
+						} else if (!stackChanged) { // If stackChanged wasn't true
+							stackChanged = true;
+						}
+					} else if (undoMove) { // When undomove is pressed
+						if(!objectPositioner.undoMove(cards, orderStacks)) {
+							std::cout << "undoMove ends" << std::endl;
+							undoMove = false;
+						} else if (!stackChanged) {
+							stackChanged = true;
 						}
 					} else {
 						// If mouse is over an object, highlight it

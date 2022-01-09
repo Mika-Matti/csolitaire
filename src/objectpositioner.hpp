@@ -46,6 +46,7 @@ class ObjectPositioner {
 					float &max, float &stackOffsetY);
 		void setMoves(int n);
 		int getMoves();
+		bool undoMove(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks);
 		void pushToHistory(std::vector<int>, int, int);
 		void clearHistory();
 };

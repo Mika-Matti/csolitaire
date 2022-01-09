@@ -230,6 +230,57 @@ int ObjectPositioner::getMoves() {
 	return moves;
 }
 
+bool ObjectPositioner::undoMove(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks) {
+	// std::cout << "MoveHistory size: " << moveHistory.size() << std::endl;
+	if(!moveHistory.empty()) { // If there are moves to undo in history
+		// Take the latest move from the history
+		std::pair<std::vector<int>, std::pair<int, int>>& latest = moveHistory.back();
+		std::cout << "last node size: " << latest.first.size() << std::endl;
+		if (!latest.first.empty()) { // If there are still cards in the move
+			// Move the bottom card in the stack back to it's original stack
+			int index = latest.first[0]; // Bottom card of the stack
+			int origStack = latest.second.first;
+			int curStack = latest.second.second;
+			sf::Vector2f dPos = cardSlots[std::abs(origStack)].getPosition();
+			int stack = (stacks[origStack].empty()) ? 0 : stacks[origStack].size();
+			sf::Vector2f offSet(0.0f, 0.0f);
+			if(origStack == -1) { // If the card is actually moving back from the deck
+				index = latest.first.back();
+			}
+			if(origStack > 5) {
+				offSet.y = 25.0f;
+			}
+
+			if(!moveCard(cards[index], dPos, offSet, stack)) {
+				// Card has moved to it's destination
+				if(curStack == 0) {
+					stacks[0].pop_back();
+					stacks[1].push_back(index);
+					latest.first.pop_back();
+					std::cout << "Undoing deck" << std::endl;
+				} else {
+					int stackInd = (stacks[curStack].size()-1)-(latest.first.size()-1);
+					std::cout << stacks[curStack][stackInd] << " <- card ind in curstack " << std::endl;
+					std::cout << "Curstack size: " << stacks[curStack].size() <<
+								 "moveStack size: " << latest.first.size() << std::endl;
+
+					stacks[curStack].erase(stacks[curStack].begin()+stackInd);
+					latest.first.erase(latest.first.begin());
+					stacks[origStack].push_back(index);
+				}
+			}
+			if(!latest.first.empty()) {
+				std::cout << "There are still cards to undo in the move" << std::endl;
+				return true;
+			} else {
+				moveHistory.pop_back(); // pop it off the history if it's empty
+				return false;
+			}
+		}
+	}
+	return false; // Let the main program know there are no more cards in stack
+}
+
 void ObjectPositioner::pushToHistory(std::vector<int> cards, int from, int to) {
 	std::pair<std::vector<int>, std::pair<int, int>> newMove; // Construct a move for history
 	newMove.first = cards;
