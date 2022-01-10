@@ -34,8 +34,7 @@ sf::RectangleShape ObjectPositioner::createRectangle(sf::Vector2f dims, sf::Vect
 	return object;
 }
 
-std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t, const std::vector<sf::Texture>& texs) {
-	std::vector<Card> cards;		// Initiate vector
+void ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::Color cardCol, sf::Text t, const std::vector<sf::Texture>& texs) {
 	int size = suits*13;				// Calculate size for vector
 	cards.reserve(size);				// Allocate size in vector
 	sf::Sprite sprite;					// Sprite for card
@@ -45,7 +44,11 @@ std::vector<Card> ObjectPositioner::createCards(int suits, sf::Vector2f xy, sf::
 			cards.push_back(Card(cardCol, a, i, xy, cardDimensions, t, sprite)); // Add to vector
 		}
 	}
-	return cards;
+}
+
+std::vector<Card>& ObjectPositioner::getCards() {
+	std::vector<Card>& c = cards;
+	return c;
 }
 
 std::vector<sf::RectangleShape> ObjectPositioner::getCardSlotPositions() {
@@ -93,7 +96,7 @@ bool ObjectPositioner::moveCard(Card &card, sf::Vector2f destPos,	sf::Vector2f o
 	return false; // Card could not be moved any more
 }
 
-bool ObjectPositioner::findMovableCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+bool ObjectPositioner::findMovableCard(std::vector<std::vector<int>> &stacks,
 			int &moves) {
 	bool cardFound = false; // Flag this if a placeable card is found
 	int stack = 0; // Store stacksize of destination her
@@ -158,7 +161,7 @@ void ObjectPositioner::highLightText(sf::Text &text, sf::Vector2f &mouseCoords, 
 	}
 }
 
-void ObjectPositioner::highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+void ObjectPositioner::highLightCard(std::vector<std::vector<int>> &stacks,
 			std::pair<int, int> &select, sf::Vector2f &mouseCoords) {
 	bool cardFound = false;
 	for(int i = 0; i < stacks.size(); i++) { // For every stack
@@ -192,8 +195,8 @@ bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f size,
 	return false;
 }
 
-void ObjectPositioner::updateStacks(std::vector<Card> &cards,
-			std::vector<std::vector<int>> &stacks, float &maxStackHeight, float &stackOffsetY) {
+void ObjectPositioner::updateStacks(std::vector<std::vector<int>> &stacks, float &maxStackHeight,
+			float &stackOffsetY) {
 	for(int i = 0; i < stacks.size(); i++) { // For every stack
 		if (!stacks[i].empty()) { // If the stack has cards
 			if (i == 0) { // If the stack is deck
@@ -207,16 +210,15 @@ void ObjectPositioner::updateStacks(std::vector<Card> &cards,
 				}
 				// Check if stack height needs to be compressed or can be decompressed
 				if(stacks.back().empty() && i > 5 && stacks[i].size() > 1) {
-					compressStack(cards, stacks[i],	maxStackHeight, stackOffsetY);
+					compressStack(stacks[i], maxStackHeight, stackOffsetY);
 				}
 			}
 		}
 	}
 }
 
-void ObjectPositioner::pickUpStack(std::vector<Card> &cards,
-			std::vector<std::vector<int>> &stacks, std::pair<int, int> &select,
-			int &prevStack, sf::Vector2f &mouseCoords, float &stackOffsetY) {
+void ObjectPositioner::pickUpStack(std::vector<std::vector<int>> &stacks, std::pair<int, int>
+			&select, int &prevStack, sf::Vector2f &mouseCoords, float &stackOffsetY) {
 	// Move all cards on top of highlighted card to the last stack
 	if (select.first != stacks.size()-1) { // If card/cards are in old stack
 		int i = 0; // Iterator to find selected card's position in stack
@@ -240,7 +242,6 @@ void ObjectPositioner::pickUpStack(std::vector<Card> &cards,
 	}
 }
 
-
 void ObjectPositioner::setSkip(bool state) {
 	skip = state;
 }
@@ -261,9 +262,7 @@ void ObjectPositioner::setSkip(bool state) {
  * for unflipped cards with the same minimum size, resulting in
  * the equation (a/x)/max + (b/y)/max = 1.
  */
-void ObjectPositioner::compressStack(std::vector<Card> &cards,
-			std::vector<int> &stack, float &max, float &stackOffsetY) {
-
+void ObjectPositioner::compressStack(std::vector<int> &stack, float &max, float &stackOffsetY) {
 	int highLight = stack.size()-1; // Assume highlight is just last card
 	int flipped = 0; // Store amount of flipped cards while compressing them first
 	float startY = cards[stack[0]].getDrawable().getPosition().y;
@@ -340,8 +339,7 @@ int ObjectPositioner::getMoves() {
 	return moves;
 }
 
-bool ObjectPositioner::undoMove(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks) {
-	// std::cout << "MoveHistory size: " << moveHistory.size() << std::endl;
+bool ObjectPositioner::undoMove(std::vector<std::vector<int>> &stacks) {
 	if(!moveHistory.empty()) { // If there are moves to undo in history
 		// Take the latest move from the history
 		std::pair<std::vector<int>, std::pair<int, int>>& latest = moveHistory.back();

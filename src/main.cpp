@@ -66,7 +66,6 @@ int main() {
 
 	sf::Vector2f mouseCoords; // For storing mouse coordinates
 	std::vector<sf::RectangleShape> cardSlots;
-	std::vector<Card> cards;
 	std::vector<std::vector<int>> orderStacks; // Holds reference to cards in stack and depth order
 	std::pair <int, int> highLighted(0, 0); // Points to a stack and card that is highlighted
 	bool animating = false; // Control animating card movement during gameplay
@@ -105,7 +104,8 @@ int main() {
 	}
 
 	// Create standard 52-card set in objectpositioner
-	cards = op.createCards(suits, initPos, cardColor, text, textures);
+	op.createCards(suits, initPos, cardColor, text, textures);
+	std::vector<Card>& cards = op.getCards();
 
 	// Start mainloop
 	while (window.isOpen()) {	// Mechanism to exit
@@ -197,7 +197,7 @@ int main() {
 
 				// Check for cards that can be flipped or for stacks that need vertical compression
 				if(stackChanged && !animating && !rightClicked && !undoMove) {
-					op.updateStacks(cards, orderStacks, maxStackHeight, stackOffsetY);
+					op.updateStacks(orderStacks, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
 					if(autoMoves > 0) { // If automatic card mover made moves
 						op.setMoves(op.getMoves()+autoMoves); // Add the moves
@@ -211,7 +211,7 @@ int main() {
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left button is pressed
 					// If user is clicking on a highlighted card and the move is allowed
 					if(moveIsLegal(cards, orderStacks[highLighted.first], highLighted)) {
-						op.pickUpStack(cards, orderStacks, highLighted, prevStack, mouseCoords,
+						op.pickUpStack(orderStacks, highLighted, prevStack, mouseCoords,
 								stackOffsetY); // Pick up that card/cards
 					} else if (areSameColor(newGameText.getFillColor(), sf::Color::Yellow)) {
 						// New game was clicked
@@ -270,14 +270,13 @@ int main() {
 								animating = false;
 						}
 					} else if (rightClicked) { // Find all cards that can be placed to upper stacks
-						if(!op.findMovableCard(cards, orderStacks, autoMoves)) {
+						if(!op.findMovableCard(orderStacks, autoMoves)) {
 							rightClicked = false; // All movable cards have been found
 						} else if (!stackChanged) { // If stackChanged wasn't true
 							stackChanged = true;
 						}
 					} else if (undoMove) { // When undomove is pressed
-						if(!op.undoMove(cards, orderStacks)) {
-							std::cout << "undoMove ends" << std::endl;
+						if(!op.undoMove(orderStacks)) {
 							undoMove = false;
 						} else if (!stackChanged) {
 							stackChanged = true;
@@ -290,7 +289,7 @@ int main() {
 								op.highLightText(texts[i], mouseCoords, true);
 						}	else {
 							op.highLightText(newGameText, mouseCoords, false);
-							op.highLightCard(cards, orderStacks, highLighted, mouseCoords);
+							op.highLightCard(orderStacks, highLighted, mouseCoords);
 						}
 					}
 				} // End game controls
