@@ -37,7 +37,7 @@ int main() {
 	bool needShuffle = true; // If the deck has to be shuffled
 
 	// Initiate window and object positioner
-	ObjectPositioner objectPositioner(bgColor, cardDimensions); // Controls objects on window
+	ObjectPositioner op(bgColor, cardDimensions); // Controls objects on window
 	sf::RenderWindow window(sf::VideoMode(wWidth, wHeight), "CSolitaire"); // Game window
 	window.setVerticalSyncEnabled(true); // Synchronize refresh rate to monitor vertical frequency
 
@@ -58,7 +58,7 @@ int main() {
 	newGameText.setPosition(wWidth-105, 10);
 	newGameText.setString("NEW GAME");
 
-	sf::RectangleShape popupShape = objectPositioner.createRectangle(sf::Vector2f(400, 200),
+	sf::RectangleShape popupShape = op.createRectangle(sf::Vector2f(400, 200),
 				sf::Vector2f(wWidth/2-200, wHeight/2-100), sf::Color::Red, sf::Color::Black, 5);
 	sf::Text newGameTitle = text;
 	newGameTitle.setString("START NEW GAME");
@@ -96,8 +96,8 @@ int main() {
 	cardFront.setTexture(textures[5]); // Add texture to card front
 
 	// Read positions for card slots from file
-	objectPositioner.positionCardSlots("slotpositions.cfg"); // Set card slot positions (x,y)
-	cardSlots = objectPositioner.getCardSlotPositions(); // Get and store the drawable slots
+	op.positionCardSlots("slotpositions.cfg"); // Set card slot positions (x,y)
+	cardSlots = op.getCardSlotPositions(); // Get and store the drawable slots
 	// Initiate orderStacks vector with cardSlots length
 	for(int i = 0; i < cardSlots.size()+1; i++) { // For every card slot + stack moved by mouse
 		std::vector<int> v; // Initiate a stack for card index references
@@ -105,7 +105,7 @@ int main() {
 	}
 
 	// Create standard 52-card set in objectpositioner
-	cards = objectPositioner.createCards(suits, initPos, cardColor, text, textures);
+	cards = op.createCards(suits, initPos, cardColor, text, textures);
 
 	// Start mainloop
 	while (window.isOpen()) {	// Mechanism to exit
@@ -130,7 +130,7 @@ int main() {
 			if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left just now released
 				mouseReleased = true;
 			} else if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && mouseReleased) {
-				objectPositioner.setSkip(true); // Then skip the early game state animations
+				op.setSkip(true); // Then skip the early game state animations
 			}
 		}
 
@@ -150,7 +150,7 @@ int main() {
 
 				// Begin animating card movement to default slot
 				if(index < cards.size()) {	// Move cards one by one towards their destination
-					if(!objectPositioner.moveCard(cards[index], cardSlots[0].getPosition(),
+					if(!op.moveCard(cards[index], cardSlots[0].getPosition(),
 								sf::Vector2f(0.1f, -0.1f), index)) { // If card can not be moved anymore
 						index++; // Move to the next card
 					}
@@ -165,7 +165,7 @@ int main() {
 					int ind = 6+amount-1; // Index of card destination stack
 					popFromAndPushTo(orderStacks[0], orderStacks[ind], index); // Update draw order
 					// Move card towards it's destination if possible
-					if(!objectPositioner.moveCard(cards[index], cardSlots[ind].getPosition(),
+					if(!op.moveCard(cards[index], cardSlots[ind].getPosition(),
 								sf::Vector2f(0.0f, stackOffsetY), orderStacks[ind].size()-1)) {
 						index--; // Otherwise move to next card
 						if(amount == orderStacks[ind].size()) // If this slot has had it's cards dealt
@@ -176,33 +176,33 @@ int main() {
 					index = 0; // Reset card index for when game is won or new game is selected
 					amount = 1; // Reset amount of cards to deal to current slot
 					stackChanged = true;
-					objectPositioner.setMoves(-1); // Reset moves, computer makes 1 move
 					autoMoves = 0;
 					mouseReleased = false;
-					objectPositioner.setSkip(false); // Make sure animations aren't skipped anymore
-					objectPositioner.clearHistory(); // Clear movehistory
+					op.setMoves(-1); // Reset moves, computer makes 1 move
+					op.setSkip(false); // Make sure animations aren't skipped anymore
+					op.clearHistory(); // Clear movehistory
 				}
 				break;
 			case 2: // The gameplay state and mouse events
-				if(objectPositioner.getMoves() > 0) { // If player has made a move
+				if(op.getMoves() > 0) { // If player has made a move
 					timeText.setString(getTime(clock)); // Update gameTime
 					movesText.setString(setFormattedText(movesText,
-								std::to_string(objectPositioner.getMoves())));
+								std::to_string(op.getMoves())));
 				}
 
 				// To start the timer in the game
-				if(objectPositioner.getMoves() == 0 && stackChanged) {
+				if(op.getMoves() == 0 && stackChanged) {
 					clock.restart(); // Clock will start from 0 when player makes first move
 				}
 
 				// Check for cards that can be flipped or for stacks that need vertical compression
 				if(stackChanged && !animating && !rightClicked && !undoMove) {
-					objectPositioner.updateStacks(cards, orderStacks, maxStackHeight, stackOffsetY);
+					op.updateStacks(cards, orderStacks, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
 					if(autoMoves > 0) { // If automatic card mover made moves
-						objectPositioner.setMoves(objectPositioner.getMoves()+autoMoves); // Add the moves
+						op.setMoves(op.getMoves()+autoMoves); // Add the moves
 					} else { // Otherwise just add the one move that was made in the game
-						objectPositioner.setMoves(objectPositioner.getMoves()+1);
+						op.setMoves(op.getMoves()+1);
 					}
 					autoMoves = 0; // Reset the automatically made moves
 				}
@@ -211,7 +211,7 @@ int main() {
 				if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left button is pressed
 					// If user is clicking on a highlighted card and the move is allowed
 					if(moveIsLegal(cards, orderStacks[highLighted.first], highLighted)) {
-						objectPositioner.pickUpStack(cards, orderStacks, highLighted, prevStack, mouseCoords,
+						op.pickUpStack(cards, orderStacks, highLighted, prevStack, mouseCoords,
 								stackOffsetY); // Pick up that card/cards
 					} else if (areSameColor(newGameText.getFillColor(), sf::Color::Yellow)) {
 						// New game was clicked
@@ -226,7 +226,7 @@ int main() {
 						}
 					} else { // If deck is clicked
 						sf::RectangleShape deck = cardSlots[0];
-						if(objectPositioner.mouseIsOverObject(deck.getPosition(), deck.getSize(),
+						if(op.mouseIsOverObject(deck.getPosition(), deck.getSize(),
 									mouseCoords) && orderStacks[0].empty() && orderStacks.back().empty()) {
 							// Empty deck was clicked. Move the whole stack 1 to active stack
 							while(!orderStacks[1].empty()) {
@@ -249,7 +249,7 @@ int main() {
 					if(!orderStacks.back().empty() && !animating) { // If there are cards picked up
 						// Find closest allowed card stack to put them in
 						closestStack = findClosestStack(cards, cardSlots, orderStacks, prevStack, mouseCoords);
-						objectPositioner.pushToHistory(orderStacks.back(), prevStack, closestStack);
+						op.pushToHistory(orderStacks.back(), prevStack, closestStack);
 						// Begin animation of selected cards moving to closest stack
 						animating = true;
 					} else if (animating) { // Animate card closing to their destination position
@@ -262,7 +262,7 @@ int main() {
 							offSet.y = stackOffsetY;
 						}
 						// If the card cant move closer to destination slot
-						if(!objectPositioner.moveCard(cards[orderStacks.back()[0]], dest, offSet, stack)) {
+						if(!op.moveCard(cards[orderStacks.back()[0]], dest, offSet, stack)) {
 							// Move card reference to the new orderStack vector
 							orderStacks[closestStack].push_back(orderStacks.back()[0]); // Place to the new
 							orderStacks.back().erase(orderStacks.back().begin()); // Erase from old stack
@@ -270,13 +270,13 @@ int main() {
 								animating = false;
 						}
 					} else if (rightClicked) { // Find all cards that can be placed to upper stacks
-						if(!objectPositioner.findMovableCard(cards, orderStacks, autoMoves)) {
+						if(!op.findMovableCard(cards, orderStacks, autoMoves)) {
 							rightClicked = false; // All movable cards have been found
 						} else if (!stackChanged) { // If stackChanged wasn't true
 							stackChanged = true;
 						}
 					} else if (undoMove) { // When undomove is pressed
-						if(!objectPositioner.undoMove(cards, orderStacks)) {
+						if(!op.undoMove(cards, orderStacks)) {
 							std::cout << "undoMove ends" << std::endl;
 							undoMove = false;
 						} else if (!stackChanged) {
@@ -287,10 +287,10 @@ int main() {
 						if (newGamePopup.getVisibility()) { // If popup is open
 							std::vector<sf::Text>& texts = newGamePopup.getTexts();
 							for(int i = 0; i < texts.size(); i++) // For every text in the window
-								objectPositioner.highLightText(texts[i], mouseCoords, true);
+								op.highLightText(texts[i], mouseCoords, true);
 						}	else {
-							objectPositioner.highLightText(newGameText, mouseCoords, false);
-							objectPositioner.highLightCard(cards, orderStacks, highLighted, mouseCoords);
+							op.highLightText(newGameText, mouseCoords, false);
+							op.highLightCard(cards, orderStacks, highLighted, mouseCoords);
 						}
 					}
 				} // End game controls
