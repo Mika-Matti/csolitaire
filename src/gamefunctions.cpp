@@ -17,29 +17,6 @@ void popFromAndPushTo(std::vector<int> &a, std::vector<int> &b, int &x) {
 	}
 }
 
-void updateStacks(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
-			ObjectPositioner &op, float &maxStackHeight, float &stackOffsetY) {
-
-	for(int i = 0; i < stacks.size(); i++) { // For every stack
-		if (!stacks[i].empty()) { // If the stack has cards
-			if (i == 0) { // If the stack is deck
-				for (int a = 0; a < stacks[i].size(); a++) // For every card in deck
-					if (!cards[stacks[i][a]].isFlipped()) // If the card isn't flipped
-						cards[stacks[i][a]].setFlipped(true); // Flip the card
-			} else { // If the stack is any other stack
-				if (cards[stacks[i].back()].isFlipped()) { // If the top card is flipped
-					if(stacks.back().empty()) // If there are no cards currently active
-						cards[stacks[i].back()].setFlipped(false); // Unflip the card
-				}
-				// Check if stack height needs to be compressed or can be decompressed
-				if(stacks.back().empty() && i > 5 && stacks[i].size() > 1) {
-					op.compressStack(cards, stacks[i],	maxStackHeight, stackOffsetY);
-				}
-			}
-		}
-	}
-}
-
 void resetDrawOrder(std::vector<std::vector<int>> &stacks, std::vector<Card> &cards) {
 	// Make sure every stack in orderStacks is empty
 	for(int i = 0; i < stacks.size(); i++) { // For every stack
@@ -67,7 +44,6 @@ std::string getTime(sf::Clock &clock) {
 	if(seconds.size() < 2)
 		seconds = "0" + seconds;
 
-
 	timeString = hours + ":" + minutes + ":" + seconds;
 
 	return timeString;
@@ -94,44 +70,6 @@ void centerText(sf::Text &text, float width, float height) {
 	sf::Vector2f pos = text.getPosition();
 	text.setOrigin(textRect.left + textRect.width/2, textRect.top + textRect.height/2);
 	text.setPosition(pos.x+width/2.0, pos.y+height/2);
-}
-
-void highLightText(sf::Text &text, ObjectPositioner &op, sf::Vector2f &mouseCoords, bool center) {
-	sf::FloatRect bounds = text.getLocalBounds();
-	sf::Vector2f pos = text.getPosition();
-	sf::Vector2f size = sf::Vector2f(bounds.left+bounds.width, bounds.top+bounds.height);
-	if(center) { // If the text was centered
-		pos.x = pos.x-size.x/2;
-		pos.y = pos.y-size.y/2;
-	}
-	if(op.mouseIsOverObject(pos, size, mouseCoords)) {
-		text.setFillColor(sf::Color::Yellow);
-	}	else {
-		text.setFillColor(sf::Color::White);
-	}
-}
-
-void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
-			std::pair<int, int> &select, ObjectPositioner &op, sf::Vector2f &mouseCoords) {
-	bool cardFound = false;
-	for(int i = 0; i < stacks.size(); i++) { // For every stack
-		if(!stacks[i].empty()) { // If that stack contains card references
-			for(int a = stacks[i].size()-1; a >= 0; a--) {
-				sf::RectangleShape last = cards[stacks[i][a]].getDrawable();
-				// If mouse detects a card under it and no card has been detected yet
-				if(op.mouseIsOverObject(last.getPosition(), last.getSize(), mouseCoords) &&	!cardFound) {
-					select.first = i; // Store the highlighted card's stack's index
-					select.second = stacks[i][a]; // Store the highlighted card index
-					cards[stacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight card
-					cardFound = true; // Tell program card has been found
-				}	else { // TODO set all colors in game to a vector in start of program
-					if(cards[stacks[i][a]].hasOutline(sf::Color::Yellow)) { // If highlighted
-						cards[stacks[i][a]].updateOutline(sf::Color::Black);	// Unhighlight
-					}
-				}
-			}
-		}
-	}
 }
 
 bool moveIsLegal(std::vector<Card> &cards, std::vector<int> &stack, std::pair<int, int> &select) {
@@ -226,54 +164,4 @@ int findClosestStack(std::vector<Card> &cards, std::vector<sf::RectangleShape> &
 		}
 	}
 	return closestStack;
-}
-
-bool findMovableCard(std::vector<Card> &cards, std::vector<sf::RectangleShape> &slots,
-			std::vector<std::vector<int>> &stacks, ObjectPositioner &op, int &moves) {
-	bool cardFound = false; // Flag this if a placeable card is found
-	int stack = 0; // Store stacksize of destination her
-	sf::Vector2f dPos; // Store destination position here
-	sf::Vector2f offSet(0.1f, -0.1f);
-
-	for(int i = 1; i < 13; i++) { // For all top cards in lower stacks
-		if(i == 1 || i >= 6) { // If stack is either dealt cards or one of the lower stacks
-			if(!stacks[i].empty()) {	// If stack is not empty
-				Card& cCard = cards[stacks[i].back()];
-				for(int a = 2; a < 6; a++) { // For all upper stacks
-					if(!stacks[a].empty()) { // If destination is not empty
-						Card& dCard = cards[stacks[a].back()]; // Get top card of the stack
-						if(cCard.getSuit() == dCard.getSuit() && cCard.getNumber() == dCard.getNumber()+1) {
-							cardFound = true; // A fitting card was found
-							dPos = dCard.getDrawable().getPosition();
-							stack = stacks[a].size();
-							// If the card cant move closer to destination slot
-						 	if(!op.moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
-								// Save move to movehistory
-								op.pushToHistory(std::vector<int>{stacks[i].back()}, i, a);
-								// Move card reference to the new orderStack vector
-								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
-								moves++;
-							}
-							break;
-						}
-					} else { // If destination is empty
-						if(cCard.getNumber() == 1) { // If current card is an ace
-							cardFound = true; // A fitting card was found
-							dPos = slots[a].getPosition();
-							// If the card cant move closer to destination slot
-							if(!op.moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
-								// Save move to movehistory
-								op.pushToHistory(std::vector<int>{stacks[i].back()}, i, a);
-								// Move card reference to the new orderStack vector
-								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
-								moves++;
-							}
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	return cardFound;
 }

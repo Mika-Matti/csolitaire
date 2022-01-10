@@ -9,6 +9,7 @@
 #include <string>
 #include <utility>
 #include "SFML/Graphics.hpp"
+#include "gamefunctions.hpp"
 #include "card.hpp"
 
 class Card; // Forward declaration of Card class
@@ -37,7 +38,13 @@ class ObjectPositioner {
 		float adjustPositioningSpeed(const float& a, const float& b);
 		void getNextCardPos(sf::Vector2f &cardPos, sf::Vector2f &destPos);
 		bool moveCard(Card &card, sf::Vector2f destPos, sf::Vector2f offSet, int stack);
+		bool findMovableCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks, int &moves);
 		bool mouseIsOverObject(sf::Vector2f object, sf::Vector2f size, sf::Vector2f mouse);
+		void highLightText(sf::Text &text, sf::Vector2f &mouseCoords, bool center);
+		void highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+					std::pair<int, int> &select, sf::Vector2f &mouseCoords);
+		void updateStacks(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+					float &maxStackHeight, float &stackOffsetY);
 		void pickUpStack(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
 					std::pair<int, int> &select, int &prevStack, sf::Vector2f &mouseCoords,
 					float &stackOffsetY);

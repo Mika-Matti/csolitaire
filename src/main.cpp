@@ -197,7 +197,7 @@ int main() {
 
 				// Check for cards that can be flipped or for stacks that need vertical compression
 				if(stackChanged && !animating && !rightClicked && !undoMove) {
-					updateStacks(cards, orderStacks, objectPositioner, maxStackHeight, stackOffsetY);
+					objectPositioner.updateStacks(cards, orderStacks, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
 					if(autoMoves > 0) { // If automatic card mover made moves
 						objectPositioner.setMoves(objectPositioner.getMoves()+autoMoves); // Add the moves
@@ -270,7 +270,7 @@ int main() {
 								animating = false;
 						}
 					} else if (rightClicked) { // Find all cards that can be placed to upper stacks
-						if(!findMovableCard(cards, cardSlots, orderStacks, objectPositioner, autoMoves)) {
+						if(!objectPositioner.findMovableCard(cards, orderStacks, autoMoves)) {
 							rightClicked = false; // All movable cards have been found
 						} else if (!stackChanged) { // If stackChanged wasn't true
 							stackChanged = true;
@@ -287,10 +287,10 @@ int main() {
 						if (newGamePopup.getVisibility()) { // If popup is open
 							std::vector<sf::Text>& texts = newGamePopup.getTexts();
 							for(int i = 0; i < texts.size(); i++) // For every text in the window
-								highLightText(texts[i], objectPositioner, mouseCoords, true);
+								objectPositioner.highLightText(texts[i], mouseCoords, true);
 						}	else {
-							highLightText(newGameText, objectPositioner, mouseCoords, false);
-							highLightCard(cards, orderStacks, highLighted, objectPositioner, mouseCoords);
+							objectPositioner.highLightText(newGameText, mouseCoords, false);
+							objectPositioner.highLightCard(cards, orderStacks, highLighted, mouseCoords);
 						}
 					}
 				} // End game controls

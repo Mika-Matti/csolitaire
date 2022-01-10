@@ -83,7 +83,7 @@ void ObjectPositioner::getNextCardPos(sf::Vector2f &cardPos, sf::Vector2f &destP
 bool ObjectPositioner::moveCard(Card &card, sf::Vector2f destPos,	sf::Vector2f offSet, int stack) {
 	sf::Vector2f cardPos = card.getDrawable().getPosition();
 	destPos.x = destPos.x+stack*offSet.x; // This helps to visualize a stack
-	destPos.y = destPos.y+stack*offSet.y; // and to help game logic to see order of cards
+	destPos.y = destPos.y+stack*offSet.y;
 
 	if (std::abs(cardPos.x-destPos.x) > 0.01f || std::abs(cardPos.y-destPos.y) > 0.01f) {
 		getNextCardPos(cardPos, destPos); // How much card will move
@@ -91,6 +91,94 @@ bool ObjectPositioner::moveCard(Card &card, sf::Vector2f destPos,	sf::Vector2f o
 		return true; // Card was moved successfully
 	}
 	return false; // Card could not be moved any more
+}
+
+bool ObjectPositioner::findMovableCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+			int &moves) {
+	bool cardFound = false; // Flag this if a placeable card is found
+	int stack = 0; // Store stacksize of destination her
+	sf::Vector2f dPos; // Store destination position here
+	sf::Vector2f offSet(0.1f, -0.1f);
+
+	for(int i = 1; i < 13; i++) { // For all top cards in lower stacks
+		if(i == 1 || i >= 6) { // If stack is either dealt cards or one of the lower stacks
+			if(!stacks[i].empty()) {	// If current stack is not empty
+				Card& cCard = cards[stacks[i].back()];
+				for(int a = 2; a < 6; a++) { // For all upper stacks
+					if(!stacks[a].empty()) { // If destination is not empty
+						Card& dCard = cards[stacks[a].back()]; // Get top card of the stack
+						if(cCard.getSuit() == dCard.getSuit() && cCard.getNumber() == dCard.getNumber()+1) {
+							cardFound = true; // A fitting card was found
+							dPos = dCard.getDrawable().getPosition();
+							stack = stacks[a].size();
+							// If the card cant move closer to destination slot
+							if(!moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
+								// Save move to movehistory
+								pushToHistory(std::vector<int>{stacks[i].back()}, i, a);
+								// Move card reference to the new orderStack vector
+								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
+								moves++;
+							}
+							break;
+						}
+					} else { // If destination is empty
+						if(cCard.getNumber() == 1) { // If current card is an ace
+							cardFound = true; // A fitting card was found
+							dPos = cardSlots[a].getPosition();
+							// If the card cant move closer to destination slot
+							if(!moveCard(cards[stacks[i].back()], dPos, offSet, stack)) {
+								// Save move to movehistory
+								pushToHistory(std::vector<int>{stacks[i].back()}, i, a);
+								// Move card reference to the new orderStack vector
+								popFromAndPushTo(stacks[i], stacks[a], stacks[i].back());
+								moves++;
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	return cardFound;
+}
+
+void ObjectPositioner::highLightText(sf::Text &text, sf::Vector2f &mouseCoords, bool center) {
+	sf::FloatRect bounds = text.getLocalBounds();
+	sf::Vector2f pos = text.getPosition();
+	sf::Vector2f size = sf::Vector2f(bounds.left+bounds.width, bounds.top+bounds.height);
+	if(center) { // If the text was centered
+		pos.x = pos.x-size.x/2;
+		pos.y = pos.y-size.y/2;
+	}
+	if(mouseIsOverObject(pos, size, mouseCoords)) {
+		text.setFillColor(sf::Color::Yellow);
+	}	else {
+		text.setFillColor(sf::Color::White);
+	}
+}
+
+void ObjectPositioner::highLightCard(std::vector<Card> &cards, std::vector<std::vector<int>> &stacks,
+			std::pair<int, int> &select, sf::Vector2f &mouseCoords) {
+	bool cardFound = false;
+	for(int i = 0; i < stacks.size(); i++) { // For every stack
+		if(!stacks[i].empty()) { // If that stack contains card references
+			for(int a = stacks[i].size()-1; a >= 0; a--) {
+				sf::RectangleShape last = cards[stacks[i][a]].getDrawable();
+				// If mouse detects a card under it and no card has been detected yet
+				if(mouseIsOverObject(last.getPosition(), last.getSize(), mouseCoords) && !cardFound) {
+					select.first = i; // Store the highlighted card's stack's index
+					select.second = stacks[i][a]; // Store the highlighted card index
+					cards[stacks[i][a]].updateOutline(sf::Color::Yellow); // Highlight card
+					cardFound = true; // Tell program card has been found
+				}	else { // TODO set all colors in game to a vector in start of program
+					if(cards[stacks[i][a]].hasOutline(sf::Color::Yellow)) { // If highlighted
+						cards[stacks[i][a]].updateOutline(sf::Color::Black);	// Unhighlight
+					}
+				}
+			}
+		}
+	}
 }
 
 bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f size,
@@ -102,6 +190,28 @@ bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f size,
 		}
 	}
 	return false;
+}
+
+void ObjectPositioner::updateStacks(std::vector<Card> &cards,
+			std::vector<std::vector<int>> &stacks, float &maxStackHeight, float &stackOffsetY) {
+	for(int i = 0; i < stacks.size(); i++) { // For every stack
+		if (!stacks[i].empty()) { // If the stack has cards
+			if (i == 0) { // If the stack is deck
+				for (int a = 0; a < stacks[i].size(); a++) // For every card in deck
+					if (!cards[stacks[i][a]].isFlipped()) // If the card isn't flipped
+						cards[stacks[i][a]].setFlipped(true); // Flip the card
+			} else { // If the stack is any other stack
+				if (cards[stacks[i].back()].isFlipped()) { // If the top card is flipped
+					if(stacks.back().empty()) // If there are no cards currently active
+						cards[stacks[i].back()].setFlipped(false); // Unflip the card
+				}
+				// Check if stack height needs to be compressed or can be decompressed
+				if(stacks.back().empty() && i > 5 && stacks[i].size() > 1) {
+					compressStack(cards, stacks[i],	maxStackHeight, stackOffsetY);
+				}
+			}
+		}
+	}
 }
 
 void ObjectPositioner::pickUpStack(std::vector<Card> &cards,
