@@ -22,7 +22,6 @@ int main() {
 	unsigned int characterSizeUsed = 24;
   sf::Texture& texture = const_cast<sf::Texture&>(font.getTexture(characterSizeUsed));
   texture.setSmooth(false);
-	bool focus = true; // Track if the windows is active
 
 	// Card Settings
 	sf::Vector2f cardDimensions = sf::Vector2f(100.0f, 150.0f);
@@ -113,15 +112,7 @@ int main() {
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed)
 				window.close();
-			else if (event.type == sf::Event::LostFocus)
-				focus = false;
 		} // Exit mechanism ends
-
-		while(!focus) { // If windows is not focus
-			window.pollEvent(event);
-			if (event.type == sf::Event::GainedFocus) // If focus is gained
-				focus = true; // Break while loop
-		}
 
 		coords.setString(updateMouseCoords(mouseCoords, window)); // Set text to new mouse coords
 
@@ -186,8 +177,7 @@ int main() {
 			case 2: // The gameplay state and mouse events
 				if(op.getMoves() > 0) { // If player has made a move
 					timeText.setString(getTime(clock)); // Update gameTime
-					movesText.setString(setFormattedText(movesText,
-								std::to_string(op.getMoves())));
+					movesText.setString(setFormattedText(movesText, std::to_string(op.getMoves())));
 				}
 
 				// To start the timer in the game
@@ -196,14 +186,14 @@ int main() {
 				}
 
 				// Check for cards that can be flipped or for stacks that need vertical compression
-				if(stackChanged && !animating && !rightClicked && !undoMove) {
-					op.updateStacks(orderStacks, maxStackHeight, stackOffsetY);
-					stackChanged = false; // Stack changes have been processed
+				if(stackChanged && !animating && !undoMove) {
 					if(autoMoves > 0) { // If automatic card mover made moves
 						op.setMoves(op.getMoves()+autoMoves); // Add the moves
 					} else { // Otherwise just add the one move that was made in the game
 						op.setMoves(op.getMoves()+1);
 					}
+					op.updateStacks(orderStacks, maxStackHeight, stackOffsetY);
+					stackChanged = false; // Stack changes have been processed
 					autoMoves = 0; // Reset the automatically made moves
 				}
 
@@ -237,12 +227,15 @@ int main() {
 						}
 					}
 				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) { // If mouse right is pressed
-					if(rightClicked == false) // If mouse right hasn't been pressed
+					if(!rightClicked)
 						rightClicked = true; // Then flag this to acknowledge it has been pressed
 				} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) &&
 								sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
-					if(undoMove == false) {
-						undoMove = true;
+					undoMove = true;
+					if(!op.undoMove(orderStacks)) {
+						undoMove = false;
+					} else if (!stackChanged) {
+						stackChanged = true;
 					}
 				} else { // If mouse is not pressed
 					// If there are cards in the last stack, place them to the nearest allowed stack
@@ -269,10 +262,10 @@ int main() {
 							if(orderStacks.back().empty()) // If there are no cards left
 								animating = false;
 						}
-					} else if (rightClicked) { // Find all cards that can be placed to upper stacks
+					} else if (rightClicked && autoMoves < 1) { // Find card to place in upper stacks
 						if(!op.findMovableCard(orderStacks, autoMoves)) {
 							rightClicked = false; // All movable cards have been found
-						} else if (!stackChanged) { // If stackChanged wasn't true
+						} else if (autoMoves > 0) {
 							stackChanged = true;
 						}
 					} else if (undoMove) { // When undomove is pressed
@@ -289,8 +282,8 @@ int main() {
 								op.highLightText(texts[i], mouseCoords, true);
 						}	else {
 							op.highLightText(newGameText, mouseCoords, false);
-							op.highLightCard(orderStacks, highLighted, mouseCoords);
-							if(event.type == sf::Event::MouseMoved) {
+							bool cardHigh = op.highLightCard(orderStacks, highLighted, mouseCoords);
+							if(event.type == sf::Event::MouseMoved && cardHigh) {
 								op.updateStacks(orderStacks, maxStackHeight, stackOffsetY);
 							}
 						}

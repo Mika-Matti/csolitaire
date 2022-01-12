@@ -161,7 +161,7 @@ void ObjectPositioner::highLightText(sf::Text &text, sf::Vector2f &mouseCoords, 
 	}
 }
 
-void ObjectPositioner::highLightCard(std::vector<std::vector<int>> &stacks,
+bool ObjectPositioner::highLightCard(std::vector<std::vector<int>> &stacks,
 			std::pair<int, int> &select, sf::Vector2f &mouseCoords) {
 	bool cardFound = false;
 	for(int i = 0; i < stacks.size(); i++) { // For every stack
@@ -182,6 +182,7 @@ void ObjectPositioner::highLightCard(std::vector<std::vector<int>> &stacks,
 			}
 		}
 	}
+	return cardFound;
 }
 
 bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f size,
@@ -197,6 +198,9 @@ bool ObjectPositioner::mouseIsOverObject(sf::Vector2f object, sf::Vector2f size,
 
 void ObjectPositioner::updateStacks(std::vector<std::vector<int>> &stacks, float &maxStackHeight,
 			float &stackOffsetY) {
+	std::vector<int> unFlipped;
+	int updateFlipped = moveHistory.size()-flipHistory.size();
+
 	for(int i = 0; i < stacks.size(); i++) { // For every stack
 		if (!stacks[i].empty()) { // If the stack has cards
 			if (i == 0) { // If the stack is deck
@@ -205,8 +209,12 @@ void ObjectPositioner::updateStacks(std::vector<std::vector<int>> &stacks, float
 						cards[stacks[i][a]].setFlipped(true); // Flip the card
 			} else { // If the stack is any other stack
 				if (cards[stacks[i].back()].isFlipped()) { // If the top card is flipped
-					if(stacks.back().empty()) // If there are no cards currently active
+					if(stacks.back().empty()) { // If there are no cards currently active
 						cards[stacks[i].back()].setFlipped(false); // Unflip the card
+						if(i > 5 && moves > 0 && updateFlipped > 0) {
+							unFlipped.push_back(stacks[i].back()); // Add to flip history
+						}
+					}
 				}
 				// Check if stack height needs to be compressed or can be decompressed
 				if(stacks.back().empty() && i > 5 && stacks[i].size() > 1) {
@@ -214,6 +222,10 @@ void ObjectPositioner::updateStacks(std::vector<std::vector<int>> &stacks, float
 				}
 			}
 		}
+	}
+	if(updateFlipped > 0) {
+		std::cout << unFlipped.size() << std::endl;
+		flipHistory.push_back(unFlipped);
 	}
 }
 
@@ -310,7 +322,6 @@ void ObjectPositioner::compressStack(std::vector<int> &stack, float &max, float 
 		}
 		// Then check for unflipped cards
 		if(stackHeight > 1.0f && flippedOffset <= minOffset) { // If the sum of proportions exceed 1
-			std::cout << stackHeight << std::endl;
 			// Calculate new offset for unflipped cards
 			float ax = flippedOffset, b = (stack.size()-flipped);
 			float y = b/(max-ax); // Formula for y is derived from (a/x)/max + (b/y)/max = 1
@@ -344,9 +355,8 @@ int ObjectPositioner::getMoves() {
 
 bool ObjectPositioner::undoMove(std::vector<std::vector<int>> &stacks) {
 	if(!moveHistory.empty()) { // If there are moves to undo in history
-		// Take the latest move from the history
 		std::pair<std::vector<int>, std::pair<int, int>>& latest = moveHistory.back();
-		std::cout << "last node size: " << latest.first.size() << std::endl;
+		// Take the latest move from the history
 		if (!latest.first.empty()) { // If there are still cards in the move
 			// Move the bottom card in the stack back to it's original stack
 			int index = latest.first[0]; // Bottom card of the stack
@@ -368,22 +378,22 @@ bool ObjectPositioner::undoMove(std::vector<std::vector<int>> &stacks) {
 					stacks[0].pop_back();
 					stacks[1].push_back(index);
 					latest.first.pop_back();
-					std::cout << "Undoing deck" << std::endl;
 				} else {
 					int stackInd = (stacks[curStack].size()-1)-(latest.first.size()-1);
-					std::cout << stacks[curStack][stackInd] << " <- card ind in curstack " << std::endl;
-					std::cout << "Curstack size: " << stacks[curStack].size() <<
-								 "moveStack size: " << latest.first.size() << std::endl;
-
 					stacks[curStack].erase(stacks[curStack].begin()+stackInd);
 					latest.first.erase(latest.first.begin());
 					stacks[origStack].push_back(index);
 				}
 			}
 			if(!latest.first.empty()) {
-				std::cout << "There are still cards to undo in the move" << std::endl;
 				return true;
 			} else {
+				if(flipHistory.size() == moveHistory.size()) {
+					for (int i = 0; i < flipHistory.back().size(); i++) {
+						cards[flipHistory.back()[i]].setFlipped(true); // Revert unflipped card
+					}
+					flipHistory.pop_back();
+				}
 				moveHistory.pop_back(); // pop it off the history if it's empty
 				return false;
 			}
@@ -398,13 +408,9 @@ void ObjectPositioner::pushToHistory(std::vector<int> cards, int from, int to) {
 	newMove.second.first = from;
 	newMove.second.second = to;
 	moveHistory.push_back(newMove);
-	std::cout << "From: " << from << " to: " << to << " these cards: ";
-	for(int i = 0; i < cards.size(); i++) {
-		std::cout << cards[i] << " ";
-	}
-	std::cout << std::endl;
 }
 
 void ObjectPositioner::clearHistory() {
 	moveHistory.clear();
+	flipHistory.clear();
 }

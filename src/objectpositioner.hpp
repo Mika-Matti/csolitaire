@@ -21,6 +21,7 @@ class ObjectPositioner {
 		std::vector<sf::RectangleShape> cardSlots; // Store the slots for cards
 		std::vector<Card> cards;
 		std::vector<std::pair<std::vector<int>, std::pair<int, int>>> moveHistory; // Store moves
+		std::vector<std::vector<int>> flipHistory; // Store card flips that occur after making a move
 
 		int moves = 0; // Counting objects(cards) moved
 		bool skip = false; // If this is true, animations are instant
@@ -43,7 +44,7 @@ class ObjectPositioner {
 		bool findMovableCard(std::vector<std::vector<int>> &stacks, int &moves);
 		bool mouseIsOverObject(sf::Vector2f object, sf::Vector2f size, sf::Vector2f mouse);
 		void highLightText(sf::Text &text, sf::Vector2f &mouseCoords, bool center);
-		void highLightCard(std::vector<std::vector<int>> &stacks, std::pair<int, int> &select,
+		bool highLightCard(std::vector<std::vector<int>> &stacks, std::pair<int, int> &select,
 					sf::Vector2f &mouseCoords);
 		void updateStacks(std::vector<std::vector<int>> &stacks, float &maxStackHeight,
 					float &stackOffsetY);
