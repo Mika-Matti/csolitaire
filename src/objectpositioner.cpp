@@ -324,6 +324,9 @@ void ObjectPositioner::compressStack(std::vector<int> &stack, float &max, float 
 		for(int i = flipped; i < stack.size(); i++) { // For every unflipped card
 			curPos = cards[stack[i]].getDrawable().getPosition();
 		 	curPos.y = flipEndY+(i-flipped)*newOffset;
+			if(highLighted && i == highLight+1) {
+				curPos.y = curPos.y + (stackOffsetY-newOffset);
+			}
 			cards[stack[i]].updatePosition(curPos);
 		}
 	} else { // Otherwise the stack height needs no adjustments

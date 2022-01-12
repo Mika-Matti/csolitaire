@@ -290,6 +290,9 @@ int main() {
 						}	else {
 							op.highLightText(newGameText, mouseCoords, false);
 							op.highLightCard(orderStacks, highLighted, mouseCoords);
+							if(event.type == sf::Event::MouseMoved) {
+								op.updateStacks(orderStacks, maxStackHeight, stackOffsetY);
+							}
 						}
 					}
 				} // End game controls
