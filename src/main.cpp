@@ -15,6 +15,7 @@ namespace fs = std::filesystem;
 
 int main() {
 	// Window settings TODO move these to their own settings file to read from
+	bool windowsActive = true; // For checking if windows is in focus
 	int wWidth = 960, wHeight = 540; // Window dimensions
 	sf::Color bgColor = sf::Color::Black; // Window background color
 	sf::Font font; // Font used in cards
@@ -22,6 +23,7 @@ int main() {
 	unsigned int characterSizeUsed = 24;
   sf::Texture& texture = const_cast<sf::Texture&>(font.getTexture(characterSizeUsed));
   texture.setSmooth(false);
+
 
 	// Card Settings
 	sf::Vector2f cardDimensions = sf::Vector2f(100.0f, 150.0f);
@@ -112,7 +114,15 @@ int main() {
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed)
 				window.close();
+			else if (event.type == sf::Event::LostFocus)
+				windowsActive = false;
+			else if (event.type == sf::Event::GainedFocus)
+				windowsActive = true;
 		} // Exit mechanism ends
+
+		if(!windowsActive) {
+			continue; // Skip to next frame
+		}
 
 		coords.setString(updateMouseCoords(mouseCoords, window)); // Set text to new mouse coords
 
@@ -190,7 +200,9 @@ int main() {
 					if(autoMoves > 0) { // If automatic card mover made moves
 						op.setMoves(op.getMoves()+autoMoves); // Add the moves
 					} else { // Otherwise just add the one move that was made in the game
-						op.setMoves(op.getMoves()+1);
+						if(prevStack != closestStack || op.getMoves() == -1) { // If move wasn't canceled
+							op.setMoves(op.getMoves()+1);
+						}
 					}
 					op.updateStacks(orderStacks, maxStackHeight, stackOffsetY);
 					stackChanged = false; // Stack changes have been processed
@@ -244,8 +256,6 @@ int main() {
 						closestStack = findClosestStack(cards, cardSlots, orderStacks, prevStack, mouseCoords);
 						if(prevStack != closestStack) { // Don't save canceled moves to undohistory
 							op.pushToHistory(orderStacks.back(), prevStack, closestStack);
-						} else { // Make sure moves are not increased when a move is canceled
-							op.setMoves(op.getMoves()-1);
 						}
 						// Begin animation of selected cards moving to closest stack
 						animating = true;
