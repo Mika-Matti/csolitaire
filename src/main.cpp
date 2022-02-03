@@ -242,7 +242,11 @@ int main() {
 					if(!orderStacks.back().empty() && !animating) { // If there are cards picked up
 						// Find closest allowed card stack to put them in
 						closestStack = findClosestStack(cards, cardSlots, orderStacks, prevStack, mouseCoords);
-						op.pushToHistory(orderStacks.back(), prevStack, closestStack);
+						if(prevStack != closestStack) { // Don't save canceled moves to undohistory
+							op.pushToHistory(orderStacks.back(), prevStack, closestStack);
+						} else { // Make sure moves are not increased when a move is canceled
+							op.setMoves(op.getMoves()-1);
+						}
 						// Begin animation of selected cards moving to closest stack
 						animating = true;
 					} else if (animating) { // Animate card closing to their destination position
