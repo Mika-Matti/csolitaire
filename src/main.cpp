@@ -120,13 +120,9 @@ int main() {
 				windowsActive = true;
 		} // Exit mechanism ends
 
-		if(!windowsActive) {
-			continue; // Skip to next frame
-		}
-
 		coords.setString(updateMouseCoords(mouseCoords, window)); // Set text to new mouse coords
 
-		if(gameState < 2) { // If gamestate is in early animation phases
+		if(gameState < 2 && windowsActive) { // If gamestate is in early animation phases
 			// Handle differentiating mouse pressed in last gamestate from mouse pressed here
 			if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left just now released
 				mouseReleased = true;
@@ -210,7 +206,7 @@ int main() {
 				}
 
 				// Game controls
-				if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) { // If mouse left button is pressed
+				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && windowsActive) { // If mouse left button is pressed
 					// If user is clicking on a highlighted card and the move is allowed
 					if(moveIsLegal(cards, orderStacks[highLighted.first], highLighted)) {
 						op.pickUpStack(orderStacks, highLighted, prevStack, mouseCoords,
@@ -238,11 +234,11 @@ int main() {
 							prevStack = -1; // Setting this to -1 will restore dealt cards to deck
 						}
 					}
-				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) { // If mouse right is pressed
+				} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && windowsActive) { // If mouse right is pressed
 					if(!rightClicked)
 						rightClicked = true; // Then flag this to acknowledge it has been pressed
 				} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) &&
-								sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+								sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && windowsActive) {
 					undoMove = true;
 					if(!op.undoMove(orderStacks)) {
 						undoMove = false;
